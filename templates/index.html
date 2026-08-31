@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AhriEyes - Multi-Gauge Deepfake Detector</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
+    <style>
+        :root {
+            --bg-base: #0a0d14;
+            --panel-bg: rgba(16, 22, 34, 0.88);
+            --panel-border: rgba(255, 255, 255, 0.08);
+            --primary-glow: #e03188;
+            --stage-safe: #00e676;
+            --stage-low: #76ff03;
+            --stage-caution: #ffea00;
+            --stage-warning: #ff9100;
+            --stage-danger: #ff1744;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(circle at 50% 5%, rgba(224, 49, 136, 0.16) 0%, transparent 55%),
+                radial-gradient(circle at 80% 90%, rgba(0, 240, 255, 0.07) 0%, transparent 45%),
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 28px 28px, 28px 28px;
+            color: #e2e8f0;
+            font-family: 'Pretendard', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 14px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 520px;
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            backdrop-filter: blur(16px);
+            border-radius: 26px;
+            padding: 24px 18px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 40px rgba(224, 49, 136, 0.12);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .brand-logo {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #e03188, #7928ca);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 22px rgba(224, 49, 136, 0.5);
+            margin-bottom: 8px;
+        }
+
+        .brand-logo svg {
+            width: 24px;
+            height: 24px;
+            fill: #ffffff;
+        }
+
+        .brand-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: 1.2px;
+            background: linear-gradient(90deg, #ffffff, #ff80bf);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-sub {
+            font-size: 11px;
+            color: #718096;
+            margin-top: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        /* 업로드 존 */
+        .dropzone {
+            position: relative;
+            border: 2px dashed rgba(255, 255, 255, 0.18);
+            border-radius: 20px;
+            padding: 26px 14px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            transition: all 0.25s ease;
+        }
+
+        .dropzone.dragover {
+            border-color: var(--primary-glow);
+            background: rgba(224, 49, 136, 0.08);
+        }
+
+        .native-file-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .dropzone-content {
+            pointer-events: none;
+        }
+
+        .dropzone-content svg {
+            width: 36px;
+            height: 36px;
+            fill: #64748b;
+            margin-bottom: 6px;
+        }
+
+        .dropzone-text {
+            font-size: 13px;
+            color: #cbd5e1;
+            line-height: 1.4;
+        }
+
+        .preview-img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 12px;
+            display: none;
+            margin: 0 auto;
+            object-fit: contain;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+            pointer-events: none;
+        }
+
+        .loading-text {
+            display: none;
+            font-size: 13px;
+            color: #00f0ff;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .btn-scan {
+            width: 100%;
+            margin-top: 14px;
+            padding: 15px;
+            background: linear-gradient(135deg, #e03188, #7928ca);
+            border: none;
+            border-radius: 16px;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(224, 49, 136, 0.35);
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        .btn-scan:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(224, 49, 136, 0.55);
+        }
+
+        .btn-scan:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-panel {
+            display: none;
+            margin-top: 20px;
+            background: rgba(8, 11, 18, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 20px 14px;
+            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .main-tachometer-wrap {
+            position: relative;
+            width: 280px;
+            height: 155px;
+            margin: 0 auto 4px;
+        }
+
+        .tachometer-svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        .gauge-arc {
+            fill: none;
+            stroke-linecap: round;
+            opacity: 0.2;
+            transition: opacity 0.35s;
+        }
+
+        .main-tachometer-wrap .gauge-arc { stroke-width: 13; }
+        .gauge-arc.active { opacity: 1; filter: drop-shadow(0 0 5px currentColor); }
+
+        .arc-safe { stroke: var(--stage-safe); color: var(--stage-safe); }
+        .arc-low { stroke: var(--stage-low); color: var(--stage-low); }
+        .arc-caution { stroke: var(--stage-caution); color: var(--stage-caution); }
+        .arc-warning { stroke: var(--stage-warning); color: var(--stage-warning); }
+        .arc-danger { stroke: var(--stage-danger); color: var(--stage-danger); }
+
+        .needle-group {
+            transform-origin: 160px 145px;
+            transform: rotate(-90deg);
+            transition: transform 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .needle { stroke: #ffffff; stroke-width: 3.5; stroke-linecap: round; filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.8)); }
+        .needle-center { fill: #1a2234; stroke: #ffffff; stroke-width: 2.5; }
+
+        .digital-readout { text-align: center; margin-top: -14px; }
+        .digital-value { font-family: 'Orbitron', monospace; font-size: 30px; font-weight: 900; color: #ffffff; letter-spacing: 1px; text-shadow: 0 0 15px rgba(255, 255, 255, 0.3); }
+        .stage-badge { display: inline-block; margin-top: 6px; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; font-family: 'Orbitron', sans-serif; }
+
+        .submodels-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 20px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .submodel-card {
+            background: rgba(255, 255, 255, 0.025);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 14px;
+            padding: 8px 2px 10px;
+            text-align: center;
+        }
+
+        .submodel-name { font-size: 10px; color: #94a3b8; font-weight: 700; margin-bottom: 2px; }
+        .mini-tachometer-wrap { position: relative; width: 100%; height: 60px; margin: 0 auto; }
+        .mini-tachometer-wrap .gauge-arc { stroke-width: 8; }
+        .mini-needle-group { transform-origin: 75px 68px; transform: rotate(-90deg); transition: transform 1.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .mini-needle { stroke: #ffffff; stroke-width: 2.2; stroke-linecap: round; }
+        .mini-needle-center { fill: #0f172a; stroke: #ffffff; stroke-width: 1.5; }
+        .submodel-val { font-family: 'Orbitron', monospace; font-size: 12px; font-weight: 800; color: #f1f5f9; margin-top: -6px; }
+    </style>
+</head>
+<body>
+<!-- [컨테이너] 대시보드 전체 유리 질감 프레임 -->
+<div class="container">
+    <!-- [헤더] 로고 및 프로젝트 타이틀 -->
+    <div class="header">
+        <div class="brand-logo">
+            <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+        </div>
+        <div class="brand-title">AhriEyes <span style="font-size:12px; color:#e03188;">v1.0</span></div>
+        <div class="brand-sub">Multi-Model Ensemble Deepfake Detector</div>
+    </div>
+    <!-- [업로더] 모바일 터치 및 PC 드래그앤드롭 수신 박스 -->
+    <div class="dropzone" id="dropzone">
+        <input type="file" id="fileInput" class="native-file-input" accept="image/*,.heic,.heif" onchange="handleFileChange(this)">
+        <!-- [판독 트리거] 백엔드 앙상블 분석 실행 버튼 -->
+        <div class="dropzone-content" id="dropzoneContent">
+            <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+            <div class="dropzone-text">
+                판독할 사진을 터치하여 업로드<br>
+                <span style="font-size:11px; color:#64748b;">(갤러리 / 파일 / 카메라)</span>
+            </div>
+            <div class="loading-text" id="loadingText">모바일 이미지 최적화 중...</div>
+        </div>
+        <img id="previewImg" class="preview-img" alt="미리보기">
+    </div>
+
+    <button class="btn-scan" id="scanBtn" onclick="runAnalysis()" disabled>
+        위조 위험도 정밀 측정
+    </button>
+    <!-- [계측 대시보드] 분석 결과 출력 영역 -->
+    <div class="result-panel" id="resultPanel">
+        <!-- 1. 상단 메인 앙상블 타코미터 (SVG 아크 5구간 & 바늘) -->
+        <div class="main-tachometer-wrap">
+            <svg class="tachometer-svg" viewBox="0 0 320 170">
+                <path class="gauge-arc arc-safe" id="arc1" d="M 55 145 A 105 105 0 0 1 75.0 83.3" />
+                <path class="gauge-arc arc-low" id="arc2" d="M 77.5 78.5 A 105 105 0 0 1 127.5 45.1" />
+                <path class="gauge-arc arc-caution" id="arc3" d="M 132.5 43.6 A 105 105 0 0 1 187.5 43.6" />
+                <path class="gauge-arc arc-warning" id="arc4" d="M 192.5 45.1 A 105 105 0 0 1 242.5 78.5" />
+                <path class="gauge-arc arc-danger" id="arc5" d="M 245.0 83.3 A 105 105 0 0 1 265 145" />
+
+                <g class="needle-group" id="mainNeedleGroup">
+                    <line class="needle" x1="160" y1="145" x2="160" y2="46" />
+                    <circle class="needle-center" cx="160" cy="145" r="7.5" />
+                </g>
+            </svg>
+        </div>
+        <!-- 2. 중앙 디지털 수치(카운트업) & 5단계 위험도 뱃지 -->
+        <div class="digital-readout">
+            <div class="digital-value" id="riskPercent">00.0%</div>
+            <div class="stage-badge" id="stageBadge">ANALYZING</div>
+        </div>
+        <!-- 3. 종합 결과 모델 계기판 클러스터 -->
+        <div class="submodels-grid">
+            <div class="submodel-card">
+                <div class="submodel-name">EfficientNet</div>
+                <div class="mini-tachometer-wrap">
+                    <svg class="tachometer-svg" viewBox="0 0 150 85">
+                        <!-- 각 단계별 색 정의-->>
+                        <path class="gauge-arc arc-safe" id="eff_arc1" d="M 27 68 A 48 48 0 0 1 36.1 39.8" />
+                        <path class="gauge-arc arc-low" id="eff_arc2" d="M 37.3 37.6 A 48 48 0 0 1 60.1 22.3" />
+                        <path class="gauge-arc arc-caution" id="eff_arc3" d="M 62.4 21.7 A 48 48 0 0 1 87.6 21.7" />
+                        <path class="gauge-arc arc-warning" id="eff_arc4" d="M 89.9 22.3 A 48 48 0 0 1 112.7 37.6" />
+                        <path class="gauge-arc arc-danger" id="eff_arc5" d="M 113.9 39.8 A 48 48 0 0 1 123 68" />
+                        <g class="mini-needle-group" id="effNeedle">
+                            <line class="mini-needle" x1="75" y1="68" x2="75" y2="24" />
+                            <circle class="mini-needle-center" cx="75" cy="68" r="4.5" />
+                        </g>
+                    </svg>
+                </div>
+            <!-- 4. 하단 3개 보조 모델 계기판 클러스터 (3열 그리드)-->
+                <div class="submodel-val" id="probEff">0.0%</div>
+            </div>
+
+            <div class="submodel-card">
+                <div class="submodel-name">ConvNeXt</div>
+                <div class="mini-tachometer-wrap">
+                    <svg class="tachometer-svg" viewBox="0 0 150 85">
+                        <path class="gauge-arc arc-safe" id="conv_arc1" d="M 27 68 A 48 48 0 0 1 36.1 39.8" />
+                        <path class="gauge-arc arc-low" id="conv_arc2" d="M 37.3 37.6 A 48 48 0 0 1 60.1 22.3" />
+                        <path class="gauge-arc arc-caution" id="conv_arc3" d="M 62.4 21.7 A 48 48 0 0 1 87.6 21.7" />
+                        <path class="gauge-arc arc-warning" id="conv_arc4" d="M 89.9 22.3 A 48 48 0 0 1 112.7 37.6" />
+                        <path class="gauge-arc arc-danger" id="conv_arc5" d="M 113.9 39.8 A 48 48 0 0 1 123 68" />
+                        <g class="mini-needle-group" id="convNeedle">
+                            <line class="mini-needle" x1="75" y1="68" x2="75" y2="24" />
+                            <circle class="mini-needle-center" cx="75" cy="68" r="4.5" />
+                        </g>
+                    </svg>
+                </div>
+                <div class="submodel-val" id="probConv">0.0%</div>
+            </div>
+
+            <div class="submodel-card">
+                <div class="submodel-name">ViT-Base</div>
+                <div class="mini-tachometer-wrap">
+                    <svg class="tachometer-svg" viewBox="0 0 150 85">
+                        <path class="gauge-arc arc-safe" id="vit_arc1" d="M 27 68 A 48 48 0 0 1 36.1 39.8" />
+                        <path class="gauge-arc arc-low" id="vit_arc2" d="M 37.3 37.6 A 48 48 0 0 1 60.1 22.3" />
+                        <path class="gauge-arc arc-caution" id="vit_arc3" d="M 62.4 21.7 A 48 48 0 0 1 87.6 21.7" />
+                        <path class="gauge-arc arc-warning" id="vit_arc4" d="M 89.9 22.3 A 48 48 0 0 1 112.7 37.6" />
+                        <path class="gauge-arc arc-danger" id="vit_arc5" d="M 113.9 39.8 A 48 48 0 0 1 123 68" />
+                        <g class="mini-needle-group" id="vitNeedle">
+                            <line class="mini-needle" x1="75" y1="68" x2="75" y2="24" />
+                            <circle class="mini-needle-center" cx="75" cy="68" r="4.5" />
+                        </g>
+                    </svg>
+                </div>
+                <div class="submodel-val" id="probVit">0.0%</div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 사진을 넣을 공간 정의 -->
+<script>
+    let finalUploadBlob = null;
+    const dropzoneContent = document.getElementById('dropzoneContent');
+    const previewImg = document.getElementById('previewImg');
+    const loadingText = document.getElementById('loadingText');
+    const scanBtn = document.getElementById('scanBtn');
+    const resultPanel = document.getElementById('resultPanel');
+
+    async function handleFileChange(input) {
+        if (!input.files || !input.files[0]) return;
+        let file = input.files[0];
+
+        loadingText.style.display = 'block';
+        scanBtn.disabled = true;
+
+        try {
+            // 1. HEIC / HEIF 포맷 감지 시 변환
+            const fileName = file.name.toLowerCase();
+            if (fileName.endsWith('.heic') || fileName.endsWith('.heif') || file.type.includes('heic') || file.type.includes('heif')) {
+                const convertedBlob = await heic2any({
+                    blob: file,
+                    toType: "image/jpeg",
+                    quality: 0.9
+                });
+                file = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+            }
+
+            // 2. 모바일 브라우저 캔버스 리사이징 및 미리보기 생성
+            const bitmap = await createImageBitmap(file);
+            const maxDim = 1200;
+            let width = bitmap.width;
+            let height = bitmap.height;
+
+            if (width > maxDim || height > maxDim) {
+                if (width > height) {
+                    height = Math.round((height * maxDim) / width);
+                    width = maxDim;
+                } else {
+                    width = Math.round((width * maxDim) / height);
+                    height = maxDim;
+                }
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(bitmap, 0, 0, width, height);
+
+            canvas.toBlob((blob) => {
+                finalUploadBlob = blob;
+                previewImg.src = canvas.toDataURL('image/jpeg', 0.9);
+                previewImg.style.display = 'block';
+                dropzoneContent.style.display = 'none';
+                loadingText.style.display = 'none';
+                scanBtn.disabled = false;
+                resultPanel.style.display = 'none';
+            }, 'image/jpeg', 0.9);
+
+        } catch (err) {
+            console.error("이미지 최적화 실패:", err);
+            finalUploadBlob = file;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImg.src = e.target.result;
+                previewImg.style.display = 'block';
+                dropzoneContent.style.display = 'none';
+                loadingText.style.display = 'none';
+                scanBtn.disabled = false;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    async function runAnalysis() {
+        if (!finalUploadBlob) return;
+        
+        scanBtn.disabled = true;
+        scanBtn.innerText = '스캐닝 & 앙상블 계측 중...';
+
+        const formData = new FormData();
+        formData.append('file', finalUploadBlob, "upload.jpg");
+
+        try {
+            const res = await fetch('/predict', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            console.log("서버 원본 응답:", data);
+
+            displayAllGauges(data);
+        } catch (err) {
+            console.error("판독 통신 에러:", err);
+            alert('판독 통신 오류가 발생했습니다.');
+        } finally {
+            scanBtn.disabled = false;
+            scanBtn.innerText = '위조 위험도 정밀 측정';
+        }
+    }
+
+    function updateGauge(prefix, needleId, percent) {
+        const safePercent = isNaN(percent) ? 0 : Math.max(0, Math.min(100, percent));
+        const deg = -90 + (safePercent / 100 * 180);
+        
+        const needle = document.getElementById(needleId);
+        if (needle) needle.style.transform = `rotate(${deg}deg)`;
+
+        for (let i = 1; i <= 5; i++) {
+            const arc = document.getElementById(`${prefix}arc${i}`);
+            if (arc) {
+                arc.classList.remove('active');
+                if (safePercent >= (i - 1) * 20) {
+                    arc.classList.add('active');
+                }
+            }
+        }
+    }
+
+    function animateValue(id, start, end, duration, suffix = '') {
+        const obj = document.getElementById(id);
+        if (!obj) return;
+        let startTimestamp = null;
+        const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            const current = progress * (end - start) + start;
+            obj.innerHTML = current.toFixed(1) + suffix;
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            }
+        };
+        window.requestAnimationFrame(step);
+    }
+
+    function displayAllGauges(data) {
+        if (!data || data.status !== 'success') {
+            console.error("정상적인 분석 데이터가 아닙니다:", data);
+            return;
+        }
+
+        if (resultPanel) {
+            resultPanel.style.display = 'block';
+        }
+
+        // 백엔드의 모든 키 네이밍 지원
+        const ensemblePercent = Number(data.final_score ?? data.final_prob ?? data.score ?? data.fake_probability ?? 0);
+        const effPercent = Number(data.details?.efficientnet ?? data.details?.eff ?? data.details?.efficientnet_prob ?? 0);
+        const convPercent = Number(data.details?.convnext ?? data.details?.conv ?? data.details?.convnext_prob ?? 0);
+        const vitPercent = Number(data.details?.vit ?? data.details?.vit_prob ?? 0);
+
+        // 1. 메인 바늘 및 단계 배지
+        updateGauge('', 'mainNeedleGroup', ensemblePercent);
+        updateGauge('', 'needle', ensemblePercent);
+        updateGauge('', 'mainNeedle', ensemblePercent);
+
+        const badge = document.getElementById('stageBadge');
+        if (badge) {
+            if (data.stage) {
+                badge.innerText = data.stage;
+            }
+            if (ensemblePercent < 20) {
+                badge.style.background = 'rgba(0, 230, 118, 0.15)';
+                badge.style.color = 'var(--stage-safe, #00e676)';
+                badge.style.border = '1px solid var(--stage-safe, #00e676)';
+            } else if (ensemblePercent < 40) {
+                badge.style.background = 'rgba(118, 255, 3, 0.15)';
+                badge.style.color = 'var(--stage-low, #76ff03)';
+                badge.style.border = '1px solid var(--stage-low, #76ff03)';
+            } else if (ensemblePercent < 60) {
+                badge.style.background = 'rgba(255, 234, 0, 0.15)';
+                badge.style.color = 'var(--stage-caution, #ffea00)';
+                badge.style.border = '1px solid var(--stage-caution, #ffea00)';
+            } else if (ensemblePercent < 80) {
+                badge.style.background = 'rgba(255, 145, 0, 0.15)';
+                badge.style.color = 'var(--stage-warning, #ff9100)';
+                badge.style.border = '1px solid var(--stage-warning, #ff9100)';
+            } else {
+                badge.style.background = 'rgba(255, 23, 68, 0.15)';
+                badge.style.color = 'var(--stage-danger, #ff1744)';
+                badge.style.border = '1px solid var(--stage-danger, #ff1744)';
+            }
+        }
+
+        // 2. 하단 3개 서브 모델 바늘 회전
+        updateGauge('eff_', 'effNeedle', effPercent);
+        updateGauge('conv_', 'convNeedle', convPercent);
+        updateGauge('vit_', 'vitNeedle', vitPercent);
+
+        // 3. 부드러운 숫자 카운팅 애니메이션
+        animateValue('riskPercent', 0, ensemblePercent, 1000, '%');
+        animateValue('finalScore', 0, ensemblePercent, 1000, '%');
+        animateValue('mainScore', 0, ensemblePercent, 1000, '%');
+
+        animateValue('probEff', 0, effPercent, 800, '%');
+        animateValue('effScore', 0, effPercent, 800, '%');
+
+        animateValue('probConv', 0, convPercent, 800, '%');
+        animateValue('convScore', 0, convPercent, 800, '%');
+
+        animateValue('probVit', 0, vitPercent, 800, '%');
+        animateValue('vitScore', 0, vitPercent, 800, '%');
+    }
+</script>
+
+</body>
+</html>
