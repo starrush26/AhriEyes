@@ -4,6 +4,7 @@
 
 import os
 import gc
+from pathlib import Path
 import torch
 import torch.nn as nn
 from torchvision import transforms
@@ -12,15 +13,13 @@ import timm
 import joblib
 import numpy as np
 from fastapi import FastAPI, UploadFile, File
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
-from fastapi.requests import Request
+from fastapi.responses import FileResponse, HTMLResponse
 from huggingface_hub import hf_hub_download
-from pathlib import Path
 
 app = FastAPI(title="AhriEyes Deepfake Detector")
+
 BASE_DIR = Path(__file__).resolve().parent
-templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
+HTML_PATH = BASE_DIR / "templates" / "index.html"
 
 HF_REPO_ID = "kihyeonlee/AhriEyes-weights"
 
@@ -36,8 +35,8 @@ def load_file_from_hf(filename: str):
     return hf_hub_download(repo_id=HF_REPO_ID, filename=filename)
 
 @app.get("/", response_class=HTMLResponse)
-async def home(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+async def home():
+    return FileResponse(HTML_PATH)
 
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
