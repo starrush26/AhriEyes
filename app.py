@@ -53,7 +53,8 @@ async def predict(file: UploadFile = File(...)):
         
         with torch.no_grad():
             out_eff = m_eff(input_tensor)
-            prob_eff = torch.softmax(out_eff, dim=1)[0][1].item()
+            # 0번 인덱스가 FAKE 확률
+            prob_eff = torch.softmax(out_eff, dim=1)[0][0].item()
             
         del m_eff, out_eff
         gc.collect()
@@ -66,7 +67,8 @@ async def predict(file: UploadFile = File(...)):
         
         with torch.no_grad():
             out_conv = m_conv(input_tensor)
-            prob_conv = torch.softmax(out_conv, dim=1)[0][1].item()
+            # 0번 인덱스가 FAKE 확률
+            prob_conv = torch.softmax(out_conv, dim=1)[0][0].item()
             
         del m_conv, out_conv
         gc.collect()
@@ -79,7 +81,8 @@ async def predict(file: UploadFile = File(...)):
         
         with torch.no_grad():
             out_vit = m_vit(input_tensor)
-            prob_vit = torch.softmax(out_vit, dim=1)[0][1].item()
+            # 0번 인덱스가 FAKE 확률
+            prob_vit = torch.softmax(out_vit, dim=1)[0][0].item()
             
         del m_vit, out_vit, input_tensor
         gc.collect()
@@ -89,6 +92,7 @@ async def predict(file: UploadFile = File(...)):
         meta_model = joblib.load(meta_path)
         
         features = np.array([[prob_eff, prob_conv, prob_vit]])
+        # 메터 모델은 1번 인덱스가 FAKE 확률
         final_prob = meta_model.predict_proba(features)[0][1] * 100.0
 
         del meta_model

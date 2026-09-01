@@ -513,62 +513,74 @@
         };
         window.requestAnimationFrame(step);
     }
-
+    // 백엔드 키 네이밍 지원
     function displayAllGauges(data) {
-        if (!data || data.status !== 'success') {
+        if (!data || !data.label) {
             console.error("정상적인 분석 데이터가 아닙니다:", data);
             return;
         }
-
+        // 결과 패널 노출
+        const resultPanel = document.getElementById('resultPanel');
         if (resultPanel) {
             resultPanel.style.display = 'block';
         }
 
         // 백엔드의 모든 키 네이밍 지원
-        const ensemblePercent = Number(data.final_score ?? data.final_prob ?? data.score ?? data.fake_probability ?? 0);
-        const effPercent = Number(data.details?.efficientnet ?? data.details?.eff ?? data.details?.efficientnet_prob ?? 0);
-        const convPercent = Number(data.details?.convnext ?? data.details?.conv ?? data.details?.convnext_prob ?? 0);
-        const vitPercent = Number(data.details?.vit ?? data.details?.vit_prob ?? 0);
+        const ensemblePercent = Number(data.fake_probability ?? data.confidence ?? 0);
+        const details = data.model_details || data.details || {};
+        const effPercent = Number(details.efficientnet ?? details.eff ?? details.efficientnet_prob ?? details.EfficientNet ?? 0);
+        const convPercent = Number(details.convnext ?? details.conv ?? details.convnext_prob ?? details.ConvNeXt ?? 0);
+        const vitPercent = Number(details.vit ?? details.vit_prob ?? details.ViT ?? details['vit-base'] ?? 0);
 
-        // 1. 메인 바늘 및 단계 배지
+        // 메인 수치 바늘 업데이트
         updateGauge('', 'mainNeedleGroup', ensemblePercent);
         updateGauge('', 'needle', ensemblePercent);
         updateGauge('', 'mainNeedle', ensemblePercent);
 
+        updateGauge('efficientnetPercent', 'efficientnetGauge', effPercent, 'text');
+        updateGauge('convnextPercent', 'convnextGauge', convPercent, 'text');
+        updateGauge('vitPercent', 'vitGauge', vitPercent, 'text');
+        // 단계별 위험도 표시
         const badge = document.getElementById('stageBadge');
         if (badge) {
-            if (data.stage) {
-                badge.innerText = data.stage;
-            }
+            let stageText = '';
+
             if (ensemblePercent < 20) {
+                stageText = 'STAGE 1 (매우 안전)';
                 badge.style.background = 'rgba(0, 230, 118, 0.15)';
                 badge.style.color = 'var(--stage-safe, #00e676)';
                 badge.style.border = '1px solid var(--stage-safe, #00e676)';
             } else if (ensemblePercent < 40) {
+                stageText = 'STAGE 2 (낮음)';
                 badge.style.background = 'rgba(118, 255, 3, 0.15)';
                 badge.style.color = 'var(--stage-low, #76ff03)';
                 badge.style.border = '1px solid var(--stage-low, #76ff03)';
             } else if (ensemblePercent < 60) {
+                stageText = 'STAGE 3 (주의)';
                 badge.style.background = 'rgba(255, 234, 0, 0.15)';
                 badge.style.color = 'var(--stage-caution, #ffea00)';
                 badge.style.border = '1px solid var(--stage-caution, #ffea00)';
             } else if (ensemblePercent < 80) {
+                stageText = 'STAGE 4 (경고)';
                 badge.style.background = 'rgba(255, 145, 0, 0.15)';
                 badge.style.color = 'var(--stage-warning, #ff9100)';
                 badge.style.border = '1px solid var(--stage-warning, #ff9100)';
             } else {
+                stageText = 'STAGE 5 (위험)';
                 badge.style.background = 'rgba(255, 23, 68, 0.15)';
                 badge.style.color = 'var(--stage-danger, #ff1744)';
                 badge.style.border = '1px solid var(--stage-danger, #ff1744)';
             }
+            badge.innerText = stageText;
+            
         }
 
-        // 2. 하단 3개 서브 모델 바늘 회전
+        // 2하단 3개 서브 모델 바늘 회전
         updateGauge('eff_', 'effNeedle', effPercent);
         updateGauge('conv_', 'convNeedle', convPercent);
         updateGauge('vit_', 'vitNeedle', vitPercent);
 
-        // 3. 부드러운 숫자 카운팅 애니메이션
+        //  부드러운 숫자 카운팅 애니메이션
         animateValue('riskPercent', 0, ensemblePercent, 1000, '%');
         animateValue('finalScore', 0, ensemblePercent, 1000, '%');
         animateValue('mainScore', 0, ensemblePercent, 1000, '%');
