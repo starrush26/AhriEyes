@@ -551,7 +551,7 @@
                 badge.style.color = 'var(--stage-safe, #00e676)';
                 badge.style.border = '1px solid var(--stage-safe, #00e676)';
             } else if (ensemblePercent < 40) {
-                stageText = 'STAGE 2 (낮음)';
+                stageText = 'STAGE 2 (안전)';
                 badge.style.background = 'rgba(118, 255, 3, 0.15)';
                 badge.style.color = 'var(--stage-low, #76ff03)';
                 badge.style.border = '1px solid var(--stage-low, #76ff03)';
@@ -561,12 +561,12 @@
                 badge.style.color = 'var(--stage-caution, #ffea00)';
                 badge.style.border = '1px solid var(--stage-caution, #ffea00)';
             } else if (ensemblePercent < 80) {
-                stageText = 'STAGE 4 (경고)';
+                stageText = 'STAGE 4 (위험)';
                 badge.style.background = 'rgba(255, 145, 0, 0.15)';
                 badge.style.color = 'var(--stage-warning, #ff9100)';
                 badge.style.border = '1px solid var(--stage-warning, #ff9100)';
             } else {
-                stageText = 'STAGE 5 (위험)';
+                stageText = 'STAGE 5 (매우위험)';
                 badge.style.background = 'rgba(255, 23, 68, 0.15)';
                 badge.style.color = 'var(--stage-danger, #ff1744)';
                 badge.style.border = '1px solid var(--stage-danger, #ff1744)';
