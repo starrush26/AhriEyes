@@ -1,7 +1,11 @@
 # cd "C:\Users\kihyu\OneDrive\바탕 화면\Project_AhriEyes"
+# .\ahrieyesvenv\Scripts\Activate.ps1
 # uvicorn app:app --reload
 # python tunnel.py
 
+# git add .
+# git commit -m "update"
+# git push origin main
 import os
 import gc
 from pathlib import Path
@@ -56,8 +60,8 @@ async def predict(file: UploadFile = File(...)):
             # 0번 인덱스가 FAKE 확률
             prob_eff = torch.softmax(out_eff, dim=1)[0][0].item()
             
-        del m_eff, out_eff
-        gc.collect()
+        del m_eff, out_eff # 메모리 해제
+        gc.collect() # 가비지 컬렉션 호출
 
         # --- [2단계] ConvNeXt 추론 및 메모리 해제 ---
         conv_path = load_file_from_hf("ConvNeXt_deepfake.pth")
