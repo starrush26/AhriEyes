@@ -238,6 +238,7 @@
                     stroke-width: 3.5; 
                     stroke-linecap: round; 
                     filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.8)); 
+                    transition: transform 1.0s ease-out; /*1초에 걸쳐 바늘 회전*/
                 }
         .needle-center {    fill: #1a2234; 
                             stroke: #ffffff; 
@@ -280,7 +281,7 @@
             text-align: center;
         }
         /* 3개 모델 각 이름 표시 설정*/
-        .submodel-name {font-size: 13px; 
+        .submodel-name {font-size: 16px; 
                         color: #94a3b8; 
                         font-weight: 800; 
                         margin-bottom: 4px; 
@@ -301,6 +302,7 @@
         .mini-needle {  stroke: #ffffff; 
                         stroke-width: 2.2; 
                         stroke-linecap: round; 
+                        transition: transform 1.0s ease-out; /*1초에 걸쳐 바늘 회전*/
                     }
 
         .mini-needle-center {   fill: #0f172a; 
@@ -309,7 +311,7 @@
                             }
 
         .submodel-val { font-family: 'Orbitron', monospace; 
-                        font-size: 12px; 
+                        font-size: 16px; 
                         font-weight: 800; 
                         color: #f1f5f9; 
                         margin-top: -6px; }
@@ -333,7 +335,7 @@
         <div class="dropzone-content" id="dropzoneContent">
             <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
             <div class="dropzone-text">
-                판독할 사진을 터치하여 업로드<br>
+                여기를 클릭하여 판독할 사진 업로드<br>
                 <span style="font-size:11px; color:#64748b;">(갤러리 / 파일 / 카메라)</span>
             </div>
             <div class="loading-text" id="loadingText">모바일 이미지 최적화 중...</div>
@@ -342,7 +344,7 @@
     </div>
 
     <button class="btn-scan" id="scanBtn" onclick="runAnalysis()" disabled>
-        위조 위험도 정밀 측정
+        딥페이크 여부 판독 시작
     </button>
     <!-- [계측 대시보드] 분석 결과 출력 영역 -->
     <div class="result-panel" id="resultPanel">
@@ -525,7 +527,7 @@
         } finally {
             /* 판독 시작 버튼 설정*/
             scanBtn.disabled = false;
-            scanBtn.innerText = '위조 위험도 정밀 측정';
+            scanBtn.innerText = '딥페이크 여부 판독시작';
         }
     }
 
@@ -535,7 +537,16 @@
         const deg = -90 + (safePercent / 100 * 180);
         
         const needle = document.getElementById(needleId);
-        if (needle) needle.style.transform = `rotate(${deg}deg)`;
+        if (needle) {
+            needle.style.transition = 'none'; /*애니메이션 끄기*/
+            needle.style.transform = 'rotate(-90deg)'; /*처음 위치로 이동*/
+
+            setTimeout(() => {
+                needle.style.transition = 'transform 1.0s ease-out'; /*1초에 걸쳐 바늘 회전*/
+                needle.style.transform = `rotate(${deg}deg)`;
+            }, 20);
+        }
+
         /*5단계 색깔 구역 나누기*/
         for (let i = 1; i <= 5; i++) {
             const arc = document.getElementById(`${prefix}arc${i}`);
@@ -616,7 +627,7 @@
                 badge.style.color = 'var(--stage-warning, #ff9100)';
                 badge.style.border = '1px solid var(--stage-warning, #ff9100)';
             } else {
-                stageText = 'STAGE 5 (매우위험 / VERY DANGEROUS)';
+                stageText = 'STAGE 5 (매우위험 / CRITICAL)';
                 badge.style.background = 'rgba(255, 23, 68, 0.15)';
                 badge.style.color = 'var(--stage-danger, #ff1744)';
                 badge.style.border = '1px solid var(--stage-danger, #ff1744)';
