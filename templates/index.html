@@ -94,6 +94,81 @@
             letter-spacing: 0.5px;
         }
 
+        .brand-caution {
+            font-size: 11px;             
+            color: #ffffff;              /* 흰색 */
+            line-height: 1.5;            /* 줄 간격 */
+            margin-top: 8px;             /* 상단 간격 */
+            word-break: keep-all;        /* 단어 단위 줄바꿈으로 깔끔하게 */
+            opacity: 0.8;
+        }
+        /*개발자 크래딧 표시 설정*/
+        .app-credits {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin-top: 36px;
+            padding-bottom: 24px;
+            font-size: 11px;
+            color: #64748b;
+            letter-spacing: 0.5px;
+        }
+
+        .credit-role {
+            font-weight: 600;
+            color: #94a3b8;
+            margin-right: 4px;
+        }
+
+        .credit-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .credit-name {
+            color: #cbd5e1;
+        }
+
+
+        .credit-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;                    /* 아이콘과 텍스트 사이 간격 */
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .credit-link:hover {
+            color: #e03188;              /* 마우스 올리면 아이콘과 글자 모두 핑크색으로 하이라이트 */
+        }
+
+        .credit-icon {
+            width: 15px;
+            height: 15px;
+            fill: currentColor;
+            flex-shrink: 0;
+        }
+
+        .credit-divider {
+            color: #334155;
+            user-select: none;
+        }
+
+        .dev-credits {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 32px;
+            padding-bottom: 24px;
+            font-size: 15px;
+            color: #64748b;
+        }
+
         /* 업로드 존 */
         .dropzone {
             position: relative;
@@ -219,6 +294,34 @@
             transition: opacity 0.35s;
         }
 
+        /*중앙 타코미터 좌우로 REAL, FAKE 글자 표시*/
+        .gauge-labels {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;               /* 게이지 폭에 맞춰 조절 */
+            margin: -18px auto 0 auto; /* 게이지 호와 숫자 사이 위치에 맞게 조절 */
+            padding: 0 15px;           /* 좌우간격 조정*/
+            box-sizing: border-box;
+        }
+
+        .label-real, .label-fake {
+            font-family: 'Orbitron', monospace;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+        
+        /*타코미터 왼쪽 REAL 글자 표시*/
+        .label-real {
+            color: #10b981;
+            text-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
+        }
+        /*타코미터 오른쪽 FAKE 글자 표시*/
+        .label-fake {
+            color: #ef4444;
+            text-shadow: 0 0 6px rgba(239, 68, 68, 0.4);
+        }
+
         .main-tachometer-wrap .gauge-arc { stroke-width: 13; }
         .gauge-arc.active { opacity: 1; filter: drop-shadow(0 0 5px currentColor); }
 
@@ -325,8 +428,9 @@
         <div class="brand-logo">
             <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
         </div>
-        <div class="brand-title">AhriEyes <span style="font-size:12px; color:#e03188;">v1.0</span></div>
-        <div class="brand-sub">Multi-Model Ensemble Deepfake Detector</div>
+        <div class="brand-title">AhriEyes <span style="font-size:12px; color:#e03188;">Dev.ver</span></div>
+        <div class="brand-sub">2단계 이기종 스태킹 앙상블 기반 딥페이크 탐지 사이트</div>
+        <div class="brand-caution">※ [주의] 본 시스템은 타인의 얼굴을 도용한 안면 합성(Face-Swap) 탐지에 특화되어 있습니다. 텍스트 기반 순수 생성물(Midjourney 등 T2I)은 분석 대상에서 제외됩니다 ※</div>
     </div>
     <!-- [업로더] 모바일 터치 및 PC 드래그앤드롭 수신 박스 -->
     <div class="dropzone" id="dropzone">
@@ -362,6 +466,11 @@
                     <circle class="needle-center" cx="160" cy="145" r="7.5" />
                 </g>
             </svg>
+
+            <div class="gauge-labels">
+                <span class="label-real">REAL</span> <!-- 1번째 자식(왼쪽)-->
+                <span class="label-fake">FAKE</span> <!-- 2번째 자식(오른쪽)-->
+            </div>
         </div>
         <!-- 2. 중앙 디지털 수치(카운트업) & 5단계 위험도 뱃지 -->
         <div class="digital-readout">
@@ -427,6 +536,27 @@
             </div>
         </div>
     </div>
+    <footer class="dev-credits">
+        <div class="credit-item">
+            <span class="credit-role">Developer</span>
+            <a href="https://github.com/starrush26" target="_blank" rel="noopener noreferrer" class="credit-link">
+                <svg class="credit-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+                </svg>
+                <span>[KOR] 이기현(Gi Hyeon Lee)</span>
+            </a>
+        </div>
+        <span class="credit-divider">|</span>
+        <div class="credit-item">
+            <span class="credit-role">Special Thanks</span>
+            <a href="https://www.kaggle.com/datasets/manjilkarki/deepfake-and-real-images" target="_blank" rel="noopener noreferrer" class="credit-link">
+                <svg class="credit-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.825 23.859c-.022.09-.117.141-.281.141h-3.139c-.187 0-.351-.082-.492-.248l-5.178-6.589-1.448 1.374v5.18c0 .188-.094.282-.281.282H5.167c-.188 0-.281-.094-.281-.282V.282c0-.188.093-.282.281-.282h2.839c.187 0 .281.094.281.282v14.154l6.198-6.398c.141-.164.305-.246.492-.246h3.292c.164 0 .258.059.281.176.023.094-.012.188-.105.282l-6.855 6.941 7.23 8.39c.07.094.093.188.07.282z"/>
+                </svg>
+                <span>[NPL] Manjil Karki (Kaggle Dataset Creator)</span>
+            </a>
+        </div>
+    </footer>
 </div>
 <!-- 사진을 넣을 공간 정의 -->
 <script>
