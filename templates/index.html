@@ -2,8 +2,9 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M49 97 C24 97 7 77 15 48 C20 30 33 22 41 21 C36 29 38 35 44 33 C41 25 43 14 62 14 C48 21 54 36 67 25 C75 32 80 43 78 57 C76 71 63 80 57 80 C68 76 74 65 77 54 C74 74 61 88 47 91 C37 93 25 87 23 75 C23 68 25 58 29 50 C23 58 24 74 34 82 C43 89 57 88 64 80 C50 88 34 88 29 80 C23 72 26 58 35 46 C27 52 23 65 26 76 C23 64 25 51 34 40 C43 30 52 32 50 22 C64 29 63 43 56 46 C66 43 72 34 68 25 C79 38 78 58 69 70 C76 59 74 45 68 37 C77 50 74 67 62 78 C54 85 45 87 38 85 C47 88 56 86 64 80 C55 86 44 87 36 83 C28 78 24 67 26 55 C22 66 25 80 37 89 C48 97 60 94 68 85 C57 93 43 96 33 91 C24 86 19 75 22 62 C15 75 23 91 38 96 C42 97 46 97 49 97 Z' fill='%23d61b6f'/%3E%3Cpath d='M16 62 C15 73 19 83 26 90 C23 81 22 70 25 60 C20 61 17 62 16 62 Z' fill='%23f5a623'/%3E%3Cpath d='M18 64 C28 32 54 26 74 34 C60 64 42 78 18 64 Z' fill='%23ffb300'/%3E%3Cellipse cx='45' cy='50' rx='6.5' ry='16' transform='rotate(18 45 50)' fill='%23111116'/%3E%3Cpath d='M16 65 C26 36 50 22 80 16 C90 12 95 6 98 4 C89 16 75 28 58 36 C38 46 26 56 16 65 Z' fill='%23111116'/%3E%3Cpath d='M25 64 C38 74 54 70 70 56 C58 64 42 66 25 64 Z' fill='%23111116'/%3E%3C/svg%3E">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AhriEyes - Multi-Gauge Deepfake Detector</title>
+    <title>AhriEyes - 2단계 이기종 스태킹 앙상블 기반 딥페이크 탐지 사이트</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
     <style>
@@ -139,6 +140,10 @@
             color: #cbd5e1;
             text-decoration: none;
             transition: color 0.2s ease;
+        }
+
+        .credit-link + .credit-link { /* +를 기준으로 앞에 오는 형제 기준으로 뒤에 오는 형제의 왼쪽 간격을 벌리기*/
+        margin-left: 6px;
         }
 
         .credit-link:hover {
@@ -545,6 +550,11 @@
                 </svg>
                 <span>[KOR] 이기현(Gi Hyeon Lee)</span>
             </a>
+            <a href="https://github.com/starrush26" target="_blank" rel="noopener noreferrer" class="credit-link">
+                <svg class="credit-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.825 23.859c-.022.09-.117.141-.281.141h-3.139c-.187 0-.351-.082-.492-.248l-5.178-6.589-1.448 1.374v5.18c0 .188-.094.282-.281.282H5.167c-.188 0-.281-.094-.281-.282V.282c0-.188.093-.282.281-.282h2.839c.187 0 .281.094.281.282v14.154l6.198-6.398c.141-.164.305-.246.492-.246h3.292c.164 0 .258.059.281.176.023.094-.012.188-.105.282l-6.855 6.941 7.23 8.39c.07.094.093.188.07.282z"/>
+                </svg>
+            </a>
         </div>
         <span class="credit-divider">|</span>
         <div class="credit-item">
@@ -554,6 +564,11 @@
                     <path d="M18.825 23.859c-.022.09-.117.141-.281.141h-3.139c-.187 0-.351-.082-.492-.248l-5.178-6.589-1.448 1.374v5.18c0 .188-.094.282-.281.282H5.167c-.188 0-.281-.094-.281-.282V.282c0-.188.093-.282.281-.282h2.839c.187 0 .281.094.281.282v14.154l6.198-6.398c.141-.164.305-.246.492-.246h3.292c.164 0 .258.059.281.176.023.094-.012.188-.105.282l-6.855 6.941 7.23 8.39c.07.094.093.188.07.282z"/>
                 </svg>
                 <span>[NPL] Manjil Karki (Kaggle Dataset Creator)</span>
+            </a>
+            <a href="https://github.com/Manjil-Karki" target="_blank" rel="noopener noreferrer" class="credit-link">
+                <svg class="credit-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+                </svg>
             </a>
         </div>
     </footer>

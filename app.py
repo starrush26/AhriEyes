@@ -3,6 +3,8 @@
 # uvicorn app:app --reload
 # python tunnel.py
 
+# Restart Language Server
+
 # git add .
 # git commit -m "update"
 # git push origin main
