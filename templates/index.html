@@ -142,6 +142,36 @@
             transition: color 0.2s ease;
         }
 
+        .foxfire-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 64px;  /* 타이틀 위에 돋보이도록 적당히 넉넉한 사이즈 */
+            height: 64px;
+            margin: 0 auto 10px auto;
+            background: rgba(56, 189, 248, 0.06);
+            border-radius: 50%;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
+        }
+
+        .foxfire-orb {
+        width: 44px;  /* 불꽃 본체 크기 */
+        height: 44px;
+        animation: floatOrb 3.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes floatOrb {
+        0% {
+            transform: translateY(0px) scale(0.98);
+            filter: drop-shadow(0 0 5px rgba(56, 189, 248, 0.6));
+        }
+        100% {
+            transform: translateY(-6px) scale(1.02);
+            filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.9));
+        }
+        }
+
         .credit-link + .credit-link { /* +를 기준으로 앞에 오는 형제 기준으로 뒤에 오는 형제의 왼쪽 간격을 벌리기*/
         margin-left: 6px;
         }
@@ -422,7 +452,28 @@
                         font-size: 16px; 
                         font-weight: 800; 
                         color: #f1f5f9; 
-                        margin-top: -6px; }
+                        margin-top: -6px; 
+                        }
+
+        /* 푸터 메타 텍스트 공통 */
+        .footer-meta {
+        color: #f1f5f9;
+        font-size: 0.97rem;
+        line-height: 1.5;
+        }
+
+        /* 외부 링크 공통 호버 인터랙션 */
+        .footer-link {
+        color: #58a6ff;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.15s ease, text-decoration 0.15s ease;
+        }
+
+        .footer-link:hover {
+        color: #79c0ff;
+        text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -430,8 +481,41 @@
 <div class="container">
     <!-- [헤더] 로고 및 프로젝트 타이틀 -->
     <div class="header">
-        <div class="brand-logo">
-            <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+        <div class="foxfire-container">
+            <svg class="foxfire-orb" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <!-- 외곽 은은한 오라 -->
+                <defs>
+                    <radialGradient id="foxGlow" cx="50%" cy="55%" r="50%">
+                        <!-- cx,cy : 원 중심점 r:반지름, stop offset : 그라데이션 시작 위치, stop-opacity : 불투명도-->
+                        <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.7"/>
+                        <stop offset="60%" stop-color="#38bdf8" stop-opacity="0.3"/>
+                        <stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/>
+                    </radialGradient>
+                    <!-- 불꽃 내부 그라데이션 -->
+                    <linearGradient id="flameGrad" x1="50%" y1="100%" x2="50%" y2="0%">
+                        <stop offset="0%" stop-color="#1d4ed8"/>
+                        <stop offset="35%" stop-color="#3b82f6"/>
+                        <stop offset="70%" stop-color="#38bdf8"/>
+                        <stop offset="100%" stop-color="#bae6fd"/>
+                    </linearGradient>
+                </defs>
+
+                <!-- 배경 오라 원 -->
+                <circle cx="60" cy="65" r="50" fill="url(#foxGlow)" />
+
+                <!-- 여우불 본체 -->
+                <path d="M50 8 C50 8 32 35 32 55 C32 70 40 82 50 82 C60 82 68 70 68 55 C68 35 50 8 50 8 Z"
+                    fill="url(#flameGrad)"
+                    filter="drop-shadow(0 0 6px rgba(56, 189, 248, 0.9))" />
+
+                <!-- 내부 코어 -->
+                <path   d="M60 90 C48 90 38 80 38 66 C38 52 48 44 56 42 C54 36 58 30 64 28 C70 26 76 32 76 40 C82 44 84 54 84 66 C84 80 72 90 60 90 Z" 
+                        fill="#38bdf8" 
+                        opacity="0.6" />
+
+                <!-- 가장 밝은 중심 심지 -->
+                <ellipse cx="61" cy="68" rx="14" ry="16" fill="#e0f2fe" opacity="0.9" />
+            </svg>
         </div>
         <div class="brand-title">AhriEyes <span style="font-size:12px; color:#e03188;">Dev.ver</span></div>
         <div class="brand-sub">2단계 이기종 스태킹 앙상블 기반 딥페이크 탐지 사이트</div>
@@ -546,12 +630,14 @@
             <span class="credit-role">Developer</span>
             <a href="https://github.com/starrush26" target="_blank" rel="noopener noreferrer" class="credit-link">
                 <svg class="credit-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <!-- 깃허브 로고 -->
                     <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
                 </svg>
                 <span>[KOR] 이기현(Gi Hyeon Lee)</span>
             </a>
-            <a href="https://github.com/starrush26" target="_blank" rel="noopener noreferrer" class="credit-link">
+            <a href="https://www.kaggle.com/amongasu" target="_blank" rel="noopener noreferrer" class="credit-link">
                 <svg class="credit-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <!-- 카글 로고 -->
                     <path d="M18.825 23.859c-.022.09-.117.141-.281.141h-3.139c-.187 0-.351-.082-.492-.248l-5.178-6.589-1.448 1.374v5.18c0 .188-.094.282-.281.282H5.167c-.188 0-.281-.094-.281-.282V.282c0-.188.093-.282.281-.282h2.839c.187 0 .281.094.281.282v14.154l6.198-6.398c.141-.164.305-.246.492-.246h3.292c.164 0 .258.059.281.176.023.094-.012.188-.105.282l-6.855 6.941 7.23 8.39c.07.094.093.188.07.282z"/>
                 </svg>
             </a>
@@ -561,14 +647,59 @@
             <span class="credit-role">Special Thanks</span>
             <a href="https://www.kaggle.com/datasets/manjilkarki/deepfake-and-real-images" target="_blank" rel="noopener noreferrer" class="credit-link">
                 <svg class="credit-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <!-- 카글 로고 -->
                     <path d="M18.825 23.859c-.022.09-.117.141-.281.141h-3.139c-.187 0-.351-.082-.492-.248l-5.178-6.589-1.448 1.374v5.18c0 .188-.094.282-.281.282H5.167c-.188 0-.281-.094-.281-.282V.282c0-.188.093-.282.281-.282h2.839c.187 0 .281.094.281.282v14.154l6.198-6.398c.141-.164.305-.246.492-.246h3.292c.164 0 .258.059.281.176.023.094-.012.188-.105.282l-6.855 6.941 7.23 8.39c.07.094.093.188.07.282z"/>
                 </svg>
                 <span>[NPL] Manjil Karki (Kaggle Dataset Creator)</span>
             </a>
             <a href="https://github.com/Manjil-Karki" target="_blank" rel="noopener noreferrer" class="credit-link">
                 <svg class="credit-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <!-- 깃허브 로고 -->
                     <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
                 </svg>
+            </a>
+        </div>
+        <div class="footer-meta">
+            <span>My current School and Major: </span>
+                <!-- 학교 로고 그리기 -->
+                <svg class="gtec-icon" viewBox="0 0 100 100" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: -2px; margin-right: 4px;">
+                    <!-- 1. 최상단 윗면 -->
+                    <path d="M12 32 L50 11 L60 17 L23 38 Z" fill="#B8D735" />
+
+                    <!-- 2. 최상단 좌측면 -->
+                    <path d="M12 32 L23 38 L23 49 L12 43 Z" fill="#7CBD30" />
+                    
+                    <!-- 3. 최상단 우측면  -->
+                    <path d="M23 38 L60 17 L60 28 L23 49 Z" fill="#59A533" />
+
+                    <!-- 4. 좌측 수직 기둥 면 -->
+                    <path d="M12 43 L23 49 L23 68 L12 62 Z" fill="#7CBD30" />
+
+                    <!-- 5. 하단 꺾임 윗면 -->
+                    <path d="M23 68 L36 61 L47 68 L34 74 Z" fill="#B8D735" />
+                    
+                    <!-- 6. 하단 바깥 좌측면 -->
+                    <path d="M12 62 L23 68 L34 74 L23 80 L12 74 Z" fill="#7CBD30" />
+                    
+                    <!-- 7. 하단 최외곽 바닥면 -->
+                    <path d="M34 74 L47 68 L47 94 L34 87 Z" fill="#3E9437" />
+
+                    <!-- 8. 우측 하단 상승면 -->
+                    <path d="M47 68 L73 53 L73 75 L47 90 Z" fill="#4DA733" />
+
+                    <!-- 9. 우측 기둥 바깥면 -->
+                    <path d="M73 53 L83 59 L83 75 L73 75 Z" fill="#7CBD30" />
+                    <path d="M73 43 L83 49 L83 59 L73 53 Z" fill="#69B92E" />
+
+                    <!-- 10. 중앙 내부 'G' 돌출 윗면 -->
+                    <path d="M55 40 L67 33 L83 42 L72 48 Z" fill="#B8D735" />
+                    
+                    <!-- 11. 중앙 내부 'G' 돌출 좌측/우측면 -->
+                    <path d="M55 40 L72 48 L72 58 L55 50 Z" fill="#63B02D" />
+                    <path d="M63 54 L73 49 L73 68 L63 61 Z" fill="#3A8A31" />
+                </svg>
+                <a href="https://www.gtec.ac.kr/landing/16/index.html" target="_blank" rel="noopener noreferrer" class="footer-link">
+                경기과학기술대학교 인공지능학과 | GTEC Dept. of Artificial Intelligence
             </a>
         </div>
     </footer>
