@@ -47,9 +47,11 @@
         .container {
             width: 100%;
             max-width: 520px;
-            background: var(--panel-bg);
+            position: relative;
+            z-index: 10;
+            background: rgba(15, 23, 42, 0.65) !important; /* 반투명 다크 배경 */
             border: 1px solid var(--panel-border);
-            backdrop-filter: blur(16px);
+            backdrop-filter: blur(12px);
             border-radius: 26px;
             padding: 24px 18px;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 40px rgba(224, 49, 136, 0.12);
@@ -376,7 +378,7 @@
                     stroke-width: 3.5; 
                     stroke-linecap: round; 
                     filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.8)); 
-                    transition: transform 1.0s ease-out; /*1초에 걸쳐 바늘 회전*/
+                    transition: transform 2.0s ease-out; /*2초에 걸쳐 바늘 회전*/
                 }
         .needle-center {    fill: #1a2234; 
                             stroke: #ffffff; 
@@ -440,7 +442,7 @@
         .mini-needle {  stroke: #ffffff; 
                         stroke-width: 2.2; 
                         stroke-linecap: round; 
-                        transition: transform 1.0s ease-out; /*1초에 걸쳐 바늘 회전*/
+                        transition: transform 2.0s ease-out; /*2초에 걸쳐 바늘 회전*/
                     }
 
         .mini-needle-center {   fill: #0f172a; 
@@ -474,9 +476,200 @@
         color: #79c0ff;
         text-decoration: underline;
         }
+                /* 화면 전체를 채우는 고정 배경 레이어 */
+        .sb-ahri-bg-wrapper {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 0; /* 중앙 컨테이너(z-index: 1 이상) 뒤로 배치 */
+        pointer-events: none; /* 클릭 및 터치 이벤트 통과 */
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        }
+
+        .sb-ahri-svg {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        filter: drop-shadow(0 0 25px rgba(168, 85, 247, 0.2));
+        animation: spiritPulse 6s ease-in-out infinite alternate;
+        }
+
+        /* 몽환적으로 은은하게 숨쉬는 호흡 애니메이션 */
+        @keyframes spiritPulse {
+        0% {
+            transform: scale(0.98);
+            opacity: 0.85;
+        }
+        100% {
+            transform: scale(1.02);
+            opacity: 1;
+        }
+        }
+
+        /* 기존 대시보드 메인 컨테이너가 배경 위로 확실히 올라오도록 설정 */
+        .container {
+        position: relative;
+        z-index: 1;
+        }
+
+                /* 사이드 캐릭터 고정 컨테이너 */
+        .ahri-side-art {
+        position: fixed;
+        bottom: 0;
+        /* 화면 가로 중앙(50%)에서 카드 너비(약 300~350px)만큼 오른쪽으로 밀어내기 */
+        left: calc(50% + 150px); 
+        z-index: 100; /* 숨지 않게 위로 올림 */
+        pointer-events: none;
+        user-select: none;
+        display: block !important;
+        opacity: 0.95;
+        }
+
+        /* 1200px 이상 데스크톱 화면에서만 좌우 여백에 등장 */
+        @media (min-width: 1200px) {
+        .ahri-side-art {
+            display: block;
+            }
+        }
+
+        /* 우측 빈 공간 배치 (좌측으로 바꾸고 싶으면 left: 2vw, right: auto) */
+        .ahri-side-art.right-side {
+        right: 4vw;
+        height: 85vh;
+        max-height: 800px;
+        }
+
+        .ahri-char-wrapper {
+        position: relative;
+        display: inline-block;
+        }
+
+        .ahri-img {
+        height: 82vh;
+        max-height: 820px;
+        width: auto;
+        display: block;
+        object-fit: contain;
+        /* 선 자체의 색상을 살려주는 은은한 배경 발광 */
+        filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.4)) 
+                drop-shadow(0 0 15px rgba(56, 189, 248, 0.3));
+        }
+
+        /* 아리의 영혼 구슬 플로팅 애니메이션 */
+        .ahri-spirit-orb {
+        position: absolute;
+        top: 22%;    /* 아리 손과 가슴 높이에 맞게 조절 */
+        left: 65%;   /* 손끝 위치 */
+        width: 90px;
+        height: 90px;
+        animation: orbHover 4s ease-in-out infinite alternate;
+        }
+
+        .spirit-orb-svg {
+        width: 100%;
+        height: 100%;
+        }
+
+        @keyframes orbHover {
+        0% {
+            transform: translate(0, 0) scale(0.95);
+            filter: drop-shadow(0 0 10px #38bdf8);
+        }
+        100% {
+            transform: translate(-8px, -12px) scale(1.1);
+            filter: drop-shadow(0 0 25px #f472b6);
+        }
+        }
+
     </style>
 </head>
 <body>
+    <!-- 좌/우 여백에 배치되는 영혼의 꽃 아리 하이브리드 아트 -->
+    <aside class="ahri-side-art right-side" aria-hidden="true">
+        <div class="ahri-char-wrapper">
+            <!-- 폴더 내부의 ststic 파일 내 아리 이미지를 WebP와 GPU 텍스처 업로드 단일화해서 불러오기 -->
+            <img src="/static/spirit_blossom_ahri.webp" alt="Spirit Blossom Ahri" class="ahri-img" />
+                <svg viewBox="0 0 100 100" class="spirit-orb-svg">
+                    <defs>
+                        <radialGradient id="sideOrbGlow" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="#e0f2fe" stop-opacity="1"/>
+                            <stop offset="30%" stop-color="#38bdf8" stop-opacity="0.8"/>
+                            <stop offset="70%" stop-color="#818cf8" stop-opacity="0.4"/>
+                            <stop offset="100%" stop-color="#ec4899" stop-opacity="0"/>
+                        </radialGradient>
+                    </defs>
+                    <circle cx="50" cy="50" r="45" fill="url(#sideOrbGlow)" />
+                    <circle cx="50" cy="50" r="20" fill="#ffffff" opacity="0.85" filter="drop-shadow(0 0 8px #38bdf8)" />
+                </svg>
+            </div>
+        </div>
+    </aside>
+    <div class="sb-ahri-bg-wrapper" aria-hidden="true">
+        <svg class="sb-ahri-svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <!-- 영혼의 꽃 특유의 핑크/청록/바이올렛 그라데이션 -->
+                <linearGradient id="sbTailGradLeft" x1="0%" y1="100%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.02"/>
+                    <stop offset="60%" stop-color="#818cf8" stop-opacity="0.12"/>
+                    <stop offset="100%" stop-color="#f472b6" stop-opacity="0.25"/>
+                </linearGradient>
+                <linearGradient id="sbTailGradRight" x1="100%" y1="100%" x2="0%" y2="0%">
+                    <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.02"/>
+                    <stop offset="60%" stop-color="#c084fc" stop-opacity="0.12"/>
+                    <stop offset="100%" stop-color="#fb7185" stop-opacity="0.25"/>
+                </linearGradient>
+                <!-- 꽃잎 그라데이션 -->
+                <linearGradient id="petalGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#fbcfe8" stop-opacity="0.4"/>
+                    <stop offset="100%" stop-color="#f43f5e" stop-opacity="0.1"/>
+                </linearGradient>
+                <!-- 오라 필터 -->
+                <filter id="spiritGlow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="15" result="blur"/>
+                    <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+                </filter>
+            </defs>
+
+            <!-- 배경 중심부 은은한 영혼의 안개 원형 -->
+             <circle cx="960" cy="540" r="450" fill="#a855f7" opacity="0.06" filter="url(#spiritGlow)"/>
+            <circle cx="960" cy="400" r="300" fill="#ec4899" opacity="0.05" filter="url(#spiritGlow)"/>
+
+            <!-- [좌측 꼬리 4가닥] 휘감기며 뻗어나가는 베지에 곡선 실루엣 -->
+            <path d="M 850 650 C 600 750 350 780 180 620 C 120 560 160 460 260 480 C 380 500 550 580 820 580 Z" fill="url(#sbTailGradLeft)" />
+            <path d="M 860 620 C 580 680 320 600 150 420 C 80 340 160 250 280 300 C 420 360 620 490 840 540 Z" fill="url(#sbTailGradLeft)" />
+            <path d="M 880 580 C 650 540 420 380 280 180 C 220 90 340 40 420 120 C 520 220 700 420 860 500 Z" fill="url(#sbTailGradLeft)" />
+            <path d="M 900 540 C 720 420 560 220 480 30 C 440 -40 540 -60 600 20 C 680 120 800 320 880 460 Z" fill="url(#sbTailGradLeft)" />
+        
+            <!-- [우측 꼬리 4가닥] -->
+            <path d="M 1070 650 C 1320 750 1570 780 1740 620 C 1800 560 1760 460 1660 480 C 1540 500 1370 580 1100 580 Z" fill="url(#sbTailGradRight)" />
+            <path d="M 1060 620 C 1340 680 1600 600 1770 420 C 1840 340 1760 250 1640 300 C 1500 360 1300 490 1080 540 Z" fill="url(#sbTailGradRight)" />
+            <path d="M 1040 580 C 1270 540 1500 380 1640 180 C 1700 90 1580 40 1500 120 C 1400 220 1220 420 1060 500 Z" fill="url(#sbTailGradRight)" />
+            <path d="M 1020 540 C 1200 420 1360 220 1440 30 C 1480 -40 1380 -60 1320 20 C 1240 120 1120 320 1040 460 Z" fill="url(#sbTailGradRight)" />
+
+            <!-- [중앙 최상단 9번째 메인 꼬리] -->
+            <path d="M 930 480 C 880 260 900 80 960 -30 C 1020 80 1040 260 990 480 Z" fill="url(#sbTailGradRight)" opacity="0.8"/>
+
+            <!-- [상단 아리 여우 귀 실루엣] 카드 위쪽 너머로 살짝 보이는 신비로운 귀 -->
+            <path d="M 870 280 C 850 200 810 140 760 100 C 790 170 820 230 840 290 Z" fill="#f472b6" opacity="0.3"/>
+            <path d="M 865 270 C 850 210 820 160 780 125 C 800 175 825 220 840 275 Z" fill="#ffffff" opacity="0.2"/>
+            <path d="M 1050 280 C 1070 200 1110 140 1160 100 C 1130 170 1100 230 1080 290 Z" fill="#f472b6" opacity="0.3"/>
+            <path d="M 1055 270 C 1070 210 1100 160 1140 125 C 1120 175 1095 220 1080 275 Z" fill="#ffffff" opacity="0.2"/>
+        
+            <!-- 흩날리는 영혼의 벚꽃 잎 텍스처 -->
+            <g fill="url(#petalGrad)">
+                <path d="M 320 220 C 310 200 330 190 345 205 C 360 220 340 235 320 220 Z" transform="rotate(25 330 210)"/>
+                <path d="M 520 680 C 510 660 530 650 545 665 C 560 680 540 695 520 680 Z" transform="rotate(-40 530 670)"/>
+                <path d="M 1420 260 C 1410 240 1430 230 1445 245 C 1460 260 1440 275 1420 260 Z" transform="rotate(65 1430 250)"/>
+                <path d="M 1650 620 C 1640 600 1660 590 1675 605 C 1690 620 1670 635 1650 620 Z" transform="rotate(-15 1660 610)"/>
+                <path d="M 960 180 C 950 165 965 155 978 168 C 990 180 975 192 960 180 Z" transform="rotate(10 965 175)"/>
+            </g>
+        </svg>
+    </div>
 <!-- [컨테이너] 대시보드 전체 유리 질감 프레임 -->
 <div class="container">
     <!-- [헤더] 로고 및 프로젝트 타이틀 -->
@@ -818,7 +1011,7 @@
             needle.style.transform = 'rotate(-90deg)'; /*처음 위치로 이동*/
 
             setTimeout(() => {
-                needle.style.transition = 'transform 1.0s ease-out'; /*1초에 걸쳐 바늘 회전*/
+                needle.style.transition = 'transform 2.0s ease-out'; /*2초에 걸쳐 바늘 회전*/
                 needle.style.transform = `rotate(${deg}deg)`;
             }, 20);
         }

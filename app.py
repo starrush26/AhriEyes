@@ -20,9 +20,12 @@ import joblib
 import numpy as np
 from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from huggingface_hub import hf_hub_download
 
 app = FastAPI(title="AhriEyes Deepfake Detector")
+#  /static 요청을 실제 폴더로 연결 
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 BASE_DIR = Path(__file__).resolve().parent
 HTML_PATH = BASE_DIR / "templates" / "index.html"
