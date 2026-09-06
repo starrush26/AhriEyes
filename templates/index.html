@@ -970,8 +970,10 @@
         </div>
     </footer>
 </div>
-<!-- 사진을 넣을 공간 정의 -->
+
+<script src="/static/soundManager.js?v=3"></script>
 <script>
+    // 사진을 넣을 공간 정의
     let finalUploadBlob = null;
     const dropzoneContent = document.getElementById('dropzoneContent');
     const previewImg = document.getElementById('previewImg');
@@ -1086,6 +1088,8 @@
         formData.append('file', finalUploadBlob, "upload.jpg");
 
         try {
+            // 판독 시작: 스캔 루프음 재생
+            SoundManager.startScanning();
             /*app.py로부터 받아올 예측값*/
             const res = await fetch('/predict', {
                 method: 'POST',
@@ -1098,6 +1102,12 @@
             // 만약 final_prob가 0~1사이의 값이라면 100을 곱하고. 이미 백분율 형태라면 그대로 대입
             finalScore = data.fake_probability > 1 ? data.fake_probability : (data.fake_probability * 100);
             displayAllGauges(data);
+
+            // 판독 완료: 스캔음 페이드아웃 후 결과 효과음 재생
+            SoundManager.stopScanning(() => {
+                SoundManager.playResult(finalScore);
+            });
+
         } catch (err) {
             console.error("판독 통신 에러:", err);
             alert('판독 통신 오류가 발생했습니다.');
@@ -1248,6 +1258,5 @@
         animateValue('vitScore', 0, vitPercent, 800, '%');
     }
 </script>
-
 </body>
 </html>
