@@ -125,8 +125,8 @@ def preprocess_image(image: Image.Image) -> np.ndarray:
     - ImageNet 정규화 (Mean / Std)
     - (1, 3, 224, 224) C-연속 메모리 float32 반환
     """
-    # 1. 224x224 Bicubic 보간 리사이즈
-    resized = image.resize((224, 224), resample=Image.Resampling.BICUBIC)
+    # 1. 224x224 BILINEAR (쌍선형 2*2참조) 보간 리사이즈
+    resized = image.resize((224, 224), resample=Image.Resampling.BILINEAR)
     
     # 2. [0, 1] 범위 정규화 (H, W, C)
     arr = np.array(resized, dtype=np.float32) / 255.0
@@ -148,6 +148,19 @@ def softmax(x: np.ndarray) -> np.ndarray:
     e_x = np.exp(x - np.max(x, axis=1, keepdims=True))
     return e_x / e_x.sum(axis=1, keepdims=True)
 
+# Render 초소형 vCPU 맞춤 경량화 옵션
+opts = ort.SessionOptions()
+opts.intra_op_num_threads = 1  # 단일 연산 내부 스레드 1개 강제
+opts.inter_op_num_threads = 1  # 연산 간 병렬 스레드 1개 강제
+opts.execution_mode = ort.ExecutionMode.ORT_SEQUENTIAL # 순서 실행 모드 강제
+opts.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL # 최적화 레벨 최대화
+
+# 세션 생성 시 sess_options 전달
+session_convnext = ort.InferenceSession("models/convnext.onnx", sess_options = opts)
+session_efficientnet = ort.InferenceSession("models/efficientnet.onnx", sess_options = opts)
+session_vit = ort.InferenceSession("models/vit.onnx", sess_options = opts)
+
+#오닉스 세션 로딩 함수
 def get_onnx_session(filename: str) -> ort.InferenceSession:
     """
     로컬 models 폴더 내 파일 경로 매핑
@@ -156,9 +169,16 @@ def get_onnx_session(filename: str) -> ort.InferenceSession:
     model_path = os.path.join(MODELS_DIR, filename)
     if not os.path.exists(model_path):
         raise FileNotFoundError(f"오류 : 모델 파일을 찾을 수 없습니다: {model_path}")
-    
-    providers = ['CPUExecutionProvider']
-    return ort.InferenceSession(model_path, providers = providers)
+
+    # Render 저스펙 CPU 병목 방지 옵션
+    sess_options = ort.SessionOptions()
+    sess_options.intra_op_num_threads = 1 # 단일 연산 내부 스레드 1개 강제
+    sess_options.inter_op_num_threads = 1 # 연산 간 병렬 스레드 1개 강제
+    sess_options.execution_mode = ort.ExecutionMode.ORT_SEQUENTIAL # 순서 실행 모드 강제
+    sess_options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL # 최적화 레벨 최대화
+
+    providers = ['CPUExecutionProvider'] # Render 환경에서 GPU 미사용 강제
+    return ort.InferenceSession(model_path, sess_options = sess_options, providers = providers)
 
 # -------------------------------------------------------------
 # [엔드포인트 라우팅]
