@@ -122,11 +122,6 @@ opts.inter_op_num_threads = 1  # 연산 간 병렬 스레드 1개 강제
 opts.execution_mode = ort.ExecutionMode.ORT_SEQUENTIAL # 순서 실행 모드 강제
 opts.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL # 최적화 레벨 최대화
 
-# 세션 생성 시 sess_options 전달
-session_convnext = ort.InferenceSession("convnext_int8.onnx", sess_options = opts)
-session_efficientnet = ort.InferenceSession("efficientnet_int8.onnx", sess_options = opts)
-session_vit = ort.InferenceSession("vit_int8.onnx", sess_options = opts)
-
 #오닉스 세션 로딩 함수
 def get_onnx_session(filename: str) -> ort.InferenceSession:
     """
