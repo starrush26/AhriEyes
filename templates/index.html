@@ -1258,5 +1258,30 @@
         animateValue('vitScore', 0, vitPercent, 800, '%');
     }
 </script>
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+    let scrollTarget = null;
+
+    // wheel 이벤트의 passive를 false로 설정해 브라우저 기본 배경 제어권 확보
+    window.addEventListener('wheel', (e) => {
+    if (!scrollTarget) {
+        scrollTarget = Array.from(document.querySelectorAll('*')).find(el => {
+        const style = window.getComputedStyle(el);
+        return (style.overflowY === 'auto' || style.overflowY === 'scroll') && (el.scrollHeight > el.clientHeight);
+        });
+    }
+
+    // 타깃이 없거나 이미 마우스가 카드 위에 있으면 브라우저 자체 스크롤에 온전히 맡김
+    if (!scrollTarget || scrollTarget.contains(e.target)) return;
+
+    // 바깥 배경 휠 조작 시 브라우저의 불필요한 배경 인터랙션 및 프레임 충돌 차단
+    e.preventDefault();
+
+    // 스크롤 속도 가속 보정
+    scrollTarget.scrollTop += e.deltaY * 1.45;
+    }, { passive: false });
+});
+</script>
+</script>
 </body>
 </html>
