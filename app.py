@@ -16,11 +16,45 @@ import numpy as np
 from PIL import Image
 import joblib
 import onnxruntime as ort
+import urllib.request
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, File, UploadFile
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.requests import Request
+
+# 모델 저장 경로 설정
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_DIR = os.path.join(BASE_DIR, "models")
+os.makedirs(MODEL_DIR, exist_ok = True)
+
+# 릴리즈 다운로드 베이스 URL
+RELEASE_URL = "https://github.com/starrush26/AhriEyes/releases/download/v1.0.0"
+
+# 다운로드 대상 파일 목록
+MODEL_FILES = [
+    "convnext.onnx",
+    "convnext.onnx.data",
+    "efficientnet.onnx",
+    "efficientnet.onnx.data",
+    "vit.onnx",
+    "vit.onnx.data"
+]
+
+# 모델 파일 존재 여부 확인 및 다운로드 함수 정의
+def ensure_models_exist():
+    for filename in MODEL_FILES:
+        file_path = os.path.join(MODEL_DIR, filename)
+
+        # 모델 파일 존재 여부 확인
+        if not os.path.exists(file_path):
+            download_url = f"{RELEASE_URL}/{filename}"
+            print(f"[Model Downloader] {filename} 다운로드 중...")
+            urllib.request.urlretrieve(download_url, file_path)
+            print(f"[Model Downloader] {filename} 완료!")
+
+# 서버 부팅 시 모델 파일 존재 여부 확인 및 자동 다운로드
+ensure_models_exist()
 
 # -------------------------------------------------------------
 # [서버 부팅 시 사전 웜업(Warm-up) 수명주기 정의]
