@@ -147,7 +147,7 @@ def get_onnx_session(filename: str) -> ort.InferenceSession:
 # -------------------------------------------------------------
 # [엔드포인트 라우팅]
 # -------------------------------------------------------------
-@app.get("/")
+@app.api_route("/", methods=["GET", "HEAD"])
 async def index(request: Request):
     """메인 대시보드 페이지 렌더링"""
     return templates.TemplateResponse(
