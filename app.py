@@ -34,7 +34,6 @@ RELEASE_URL = "https://github.com/starrush26/AhriEyes/releases/download/v1.0.0"
 
 # 다운로드 대상 파일 목록
 MODEL_FILES = [
-    "efficientnet_int8.onnx",
     "convnext_int8.onnx",
     "vit_int8.onnx",
 ]
@@ -164,7 +163,7 @@ async def predict(file: UploadFile = File(...)):
         input_data = preprocess_image(image)
 
         # --- [1단계] EfficientNet ONNX 추론 ---
-        session_eff = get_onnx_session("efficientnet_int8.onnx")
+        session_eff = get_onnx_session("efficientnet.onnx")
         input_name_eff = session_eff.get_inputs()[0].name
         out_eff = session_eff.run(None, {input_name_eff: input_data})[0]
         prob_eff = float(softmax(out_eff)[0][0])  # 가짜(Fake) 클래스 인덱스 확률
