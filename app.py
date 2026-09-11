@@ -61,6 +61,10 @@ ensure_models_exist()
 # -------------------------------------------------------------
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    print("\n[AhriEyes] 서버 기동 완료 (메모리 절약 모드 가동)")
+
+    yield
+    """
     print("\n [AhriEyes] 서버 기동 중: 3중 ONNX 엔진 사전 웜업을 시작합니다...")
     try:
         # 웜업을 위한 가짜 더미 입력 데이터 생성 (1, 3, 224, 224)
@@ -95,6 +99,7 @@ async def lifespan(app: FastAPI):
     yield  # 서버 실행 중 파이프라인
 
     print("\n [AhriEyes] 서버가 종료됩니다.")
+    """
 
 # -------------------------------------------------------------
 # [환경 설정 및 경로 초기화]
@@ -176,6 +181,8 @@ def get_onnx_session(filename: str) -> ort.InferenceSession:
     sess_options.inter_op_num_threads = 1 # 연산 간 병렬 스레드 1개 강제
     sess_options.execution_mode = ort.ExecutionMode.ORT_SEQUENTIAL # 순서 실행 모드 강제
     sess_options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL # 최적화 레벨 최대화
+    sess_options.enable_cpu_mem_arena = False       # C++ 내부 메모리 풀 비활성화 (필요할 때만 쓰고 즉시 반환)
+    sess_options.enable_mem_pattern = False         # 정적 메모리 할당 패턴 끄기 (피크치 절약)
 
     providers = ['CPUExecutionProvider'] # Render 환경에서 GPU 미사용 강제
     return ort.InferenceSession(model_path, sess_options = sess_options, providers = providers)
@@ -206,6 +213,7 @@ async def predict(file: UploadFile = File(...)):
         prob_eff = float(softmax(out_eff)[0][0])  # 가짜(Fake) 클래스 인덱스 확률
 
         del session_eff, out_eff # 메모리 해제
+        gc.collect()
 
         # --- [2단계] ConvNeXt ONNX 추론 ---
         session_conv = get_onnx_session("convnext.onnx")
@@ -214,6 +222,7 @@ async def predict(file: UploadFile = File(...)):
         prob_conv = float(softmax(out_conv)[0][0])
 
         del session_conv, out_conv
+        gc.collect()
 
         # --- [3단계] ViT ONNX 추론 ---
         session_vit = get_onnx_session("vit.onnx")
@@ -222,7 +231,7 @@ async def predict(file: UploadFile = File(...)):
         prob_vit = float(softmax(out_vit)[0][0])
 
         del session_vit, out_vit, input_data
-        gc.collect()  # 대형 모델 추론 후 힙 메모리 1회 집중 정리
+        gc.collect()  
 
         # --- [4단계] Meta Stacking 모델 판별 ---
         meta_path = os.path.join(MODELS_DIR, "stacking_meta_logistic_model.pkl")
