@@ -22,6 +22,7 @@ from fastapi import FastAPI, File, UploadFile
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.requests import Request
+import resource
 
 # 모델 저장 경로 설정
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -212,6 +213,14 @@ async def predict(file: UploadFile = File(...)):
         # 판독 라벨 및 신뢰도 산출
         label = "FAKE (AI 생성)" if final_prob >= 50.0 else "REAL (실제 사진)"
         confidence = final_prob if final_prob >= 50.0 else (100.0 - final_prob)
+
+        # 추론 완료 후 최종 메모리 피크 확인 (Linux 환경 전용, Windows 예외 처리)
+        try:
+            max_ram_used = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
+            print(f"\n[AhriEyes Memory Check] 프로세스 최고 메모리 피크: {max_ram_used:.2f} MB / 512.00 MB\n")
+
+        except (ImportError, AttributeError):
+            pass
 
         # 프론트엔드 규격에 완벽히 맞춘 반환 데이터
         return {
