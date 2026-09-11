@@ -2,3 +2,7 @@ ahrieyesvenv/
 __pycache__/
 *.pyc
 .env
+models/*.onnx
+models/*.data
+models/*.pth
+models/.cache/
