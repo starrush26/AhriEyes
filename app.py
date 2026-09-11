@@ -37,8 +37,7 @@ MODEL_FILES = [
     "convnext.onnx.data",
     "efficientnet.onnx",
     "efficientnet.onnx.data",
-    "vit.onnx",
-    "vit.onnx.data"
+    "vit_int8.onnx",
 ]
 
 # 모델 파일 존재 여부 확인 및 다운로드 함수 정의
@@ -64,42 +63,6 @@ async def lifespan(app: FastAPI):
     print("\n[AhriEyes] 서버 기동 완료 (메모리 절약 모드 가동)")
 
     yield
-    """
-    print("\n [AhriEyes] 서버 기동 중: 3중 ONNX 엔진 사전 웜업을 시작합니다...")
-    try:
-        # 웜업을 위한 가짜 더미 입력 데이터 생성 (1, 3, 224, 224)
-        dummy_input = np.zeros((1, 3, 224, 224), dtype=np.float32)
-        
-        # 1. EfficientNet 웜업
-        sess_eff = get_onnx_session("efficientnet.onnx")
-        sess_eff.run(None, {sess_eff.get_inputs()[0].name: dummy_input})
-        del sess_eff
-        
-        # 2. ConvNeXt 웜업
-        sess_conv = get_onnx_session("convnext.onnx")
-        sess_conv.run(None, {sess_conv.get_inputs()[0].name: dummy_input})
-        del sess_conv
-        
-        # 3. ViT 웜업
-        sess_vit = get_onnx_session("vit.onnx")
-        sess_vit.run(None, {sess_vit.get_inputs()[0].name: dummy_input})
-        del sess_vit
-        
-        # 4. 메타 모델 웜업
-        meta_path = os.path.join(MODELS_DIR, "stacking_meta_logistic_model.pkl")
-        meta_model = joblib.load(meta_path)
-        meta_model.predict_proba(np.array([[0.5, 0.5, 0.5]], dtype=np.float32))
-        del meta_model
-        
-        gc.collect()
-        print("[AhriEyes] 3중 앙상블 모델 메모리 캐싱 및 웜업 완료! \n")
-    except Exception as e:
-        print(f" [AhriEyes] 웜업 중 오류 발생 (실제 판독 시 로드됨): {e}")
-
-    yield  # 서버 실행 중 파이프라인
-
-    print("\n [AhriEyes] 서버가 종료됩니다.")
-    """
 
 # -------------------------------------------------------------
 # [환경 설정 및 경로 초기화]
@@ -163,7 +126,7 @@ opts.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL # 최�
 # 세션 생성 시 sess_options 전달
 session_convnext = ort.InferenceSession("models/convnext.onnx", sess_options = opts)
 session_efficientnet = ort.InferenceSession("models/efficientnet.onnx", sess_options = opts)
-session_vit = ort.InferenceSession("models/vit.onnx", sess_options = opts)
+session_vit = ort.InferenceSession("models/vit_int8.onnx", sess_options = opts)
 
 #오닉스 세션 로딩 함수
 def get_onnx_session(filename: str) -> ort.InferenceSession:
@@ -225,7 +188,7 @@ async def predict(file: UploadFile = File(...)):
         gc.collect()
 
         # --- [3단계] ViT ONNX 추론 ---
-        session_vit = get_onnx_session("vit.onnx")
+        session_vit = get_onnx_session("vit_int8.onnx") # ViT INT8 양자화 모델 사용
         input_name_vit = session_vit.get_inputs()[0].name
         out_vit = session_vit.run(None, {input_name_vit: input_data})[0]
         prob_vit = float(softmax(out_vit)[0][0])
