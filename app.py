@@ -34,10 +34,8 @@ RELEASE_URL = "https://github.com/starrush26/AhriEyes/releases/download/v1.0.0"
 
 # 다운로드 대상 파일 목록
 MODEL_FILES = [
-    "convnext.onnx",
-    "convnext.onnx.data",
-    "efficientnet.onnx",
-    "efficientnet.onnx.data",
+    "efficientnet_int8.onnx",
+    "convnext_int8.onnx",
     "vit_int8.onnx",
 ]
 
@@ -125,15 +123,15 @@ opts.execution_mode = ort.ExecutionMode.ORT_SEQUENTIAL # 순서 실행 모드 �
 opts.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL # 최적화 레벨 최대화
 
 # 세션 생성 시 sess_options 전달
-session_convnext = ort.InferenceSession("models/convnext.onnx", sess_options = opts)
-session_efficientnet = ort.InferenceSession("models/efficientnet.onnx", sess_options = opts)
-session_vit = ort.InferenceSession("models/vit_int8.onnx", sess_options = opts)
+session_convnext = ort.InferenceSession("convnext_int8.onnx", sess_options = opts)
+session_efficientnet = ort.InferenceSession("efficientnet_int8.onnx", sess_options = opts)
+session_vit = ort.InferenceSession("vit_int8.onnx", sess_options = opts)
 
 #오닉스 세션 로딩 함수
 def get_onnx_session(filename: str) -> ort.InferenceSession:
     """
     로컬 models 폴더 내 파일 경로 매핑
-    .onnx와 .onnx.data가 나란히 위치해야 외부 가중치를 자동 로드
+    - 모델 파일들이 나란히 위치해야 외부 가중치를 자동 로드
     """
     model_path = os.path.join(MODELS_DIR, filename)
     if not os.path.exists(model_path):
@@ -171,7 +169,7 @@ async def predict(file: UploadFile = File(...)):
         input_data = preprocess_image(image)
 
         # --- [1단계] EfficientNet ONNX 추론 ---
-        session_eff = get_onnx_session("efficientnet.onnx")
+        session_eff = get_onnx_session("efficientnet_int8.onnx")
         input_name_eff = session_eff.get_inputs()[0].name
         out_eff = session_eff.run(None, {input_name_eff: input_data})[0]
         prob_eff = float(softmax(out_eff)[0][0])  # 가짜(Fake) 클래스 인덱스 확률
@@ -180,7 +178,7 @@ async def predict(file: UploadFile = File(...)):
         gc.collect()
 
         # --- [2단계] ConvNeXt ONNX 추론 ---
-        session_conv = get_onnx_session("convnext.onnx")
+        session_conv = get_onnx_session("convnext_int8.onnx")
         input_name_conv = session_conv.get_inputs()[0].name
         out_conv = session_conv.run(None, {input_name_conv: input_data})[0]
         prob_conv = float(softmax(out_conv)[0][0])
