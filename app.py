@@ -9,6 +9,10 @@
 # git commit -m "update"
 # git push origin main
 
+# git add .
+# git commit -m "chore: save local changes"
+# git pull origin main
+
 import os
 import gc
 import traceback
