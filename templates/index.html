@@ -794,7 +794,7 @@
                 <ellipse cx="61" cy="68" rx="14" ry="16" fill="#e0f2fe" opacity="0.9" />
             </svg>
         </div>
-        <div class="brand-title">AhriEyes <span style="font-size:12px; color:#e03188;">v1.1.1</span></div>
+        <div class="brand-title">AhriEyes <span style="font-size:12px; color:#e03188;">v1.1.2</span></div>
         <div class="brand-sub">2단계 이기종 스태킹 앙상블 기반 딥페이크 탐지 사이트</div>
         <div class="brand-caution">※ [주의] 본 시스템은 타인의 얼굴을 도용한 안면 합성(Face-Swap) 탐지에 특화되어 있습니다. 텍스트 기반 순수 생성물(Midjourney 등 T2I)은 분석 대상에서 제외됩니다 ※</div>
         <div class="brand-caution" style="color: #ff4d4f; border-color: rgba(255, 77, 79, 0.4);">
@@ -1147,9 +1147,9 @@
             console.log("서버 원본 응답:", data);
 
             // app.py의 fake_probability 값 파싱
-            // 만약 final_prob가 0~1사이의 값이라면 100을 곱하고. 이미 백분율 형태라면 그대로 대입
-            finalScore = data.fake_probability > 1 ? data.fake_probability : (data.fake_probability * 100);
+            finalScore = Number(data.fake_probability);
             displayAllGauges(data);
+            console.log("확인된 finalScore:", finalScore);
 
             // 판독 완료: 스캔음 페이드아웃 후 결과 효과음 재생
             SoundManager.stopScanning(() => {
