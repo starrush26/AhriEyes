@@ -5,13 +5,21 @@
 
 # Restart Language Server
 
+# ----- 깃 커밋 -----
 # git add .
 # git commit -m "update"
 # git push origin main
 
+# ----- 깃 동기화 -----
 # git add .
 # git commit -m "chore: save local changes"
 # git pull origin main
+
+# ------- 버전 업그레이드 -------
+#git add .
+#git commit -m "feat: Add rate limiting (10 req/min) for abuse prevention (v1.1.0)"
+#git tag -a v1.1.0 -m "Release v1.1.0: Rate limiting and abuse prevention"
+#git push origin main --tags
 
 import os
 import gc
@@ -22,7 +30,10 @@ import joblib
 import onnxruntime as ort
 import urllib.request
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, Request, File, UploadFile, status
+from fastapi.responses import JSONResponse
+from slowapi import Limiter
+from slowapi.errors import RateLimitExceeded
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.requests import Request
@@ -84,6 +95,30 @@ app.mount("/sound", StaticFiles(directory=SOUND_DIR), name="sound")
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 app.mount("/sound", StaticFiles(directory=SOUND_DIR), name="sound")
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
+
+def get_real_ip(request: Request) -> str:
+    # 프록시(Cloudflare/Render)를 거쳐 전달된 실제 접속자 IP 확인
+    forwarded = request.headers.get("X-Forwarded-For")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+
+    # 클라이언트 정보가 없으면 로컬호스트 반환
+    return request.client.host if request.client else "127.0.0.1" 
+
+# 인메모리 레이트 리미터 초기화
+limiter = Limiter(key_func=get_real_ip)
+app.state.limiter = limiter
+
+# 429 에러 발생 시 깔끔한 JSON 응답 반환
+@app.exception_handler(RateLimitExceeded)
+async def custom_rate_limit_handler(request: Request, exc: RateLimitExceeded):
+    return JSONResponse(
+        status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+        content={
+            "error": "Too Many Requests",
+            "message": "요청 횟수가 너무 많습니다. 1분 후 다시 시도해 주세요."
+        }
+    )
 
 # -------------------------------------------------------------
 # [유틸리티 함수: 전처리 및 소프트맥스]
@@ -159,6 +194,8 @@ async def index(request: Request):
     )
 
 @app.post("/predict")
+@limiter.limit("10/minute")
+
 async def predict(file: UploadFile = File(...)):
     """3대 앙상블 ONNX 추론 및 메타 로지스틱 회귀 판독 파이프라인"""
     try:
