@@ -196,7 +196,7 @@ async def index(request: Request):
 @app.post("/predict")
 @limiter.limit("10/minute")
 
-async def predict(file: UploadFile = File(...)):
+async def predict(request: Request, file: UploadFile = File(...)):
     """3대 앙상블 ONNX 추론 및 메타 로지스틱 회귀 판독 파이프라인"""
     try:
         # 1. 업로드 이미지 로드 및 전처리
