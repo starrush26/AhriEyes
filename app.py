@@ -23,6 +23,7 @@
 
 import os
 import gc
+import io
 import traceback
 import numpy as np
 from PIL import Image
@@ -30,7 +31,7 @@ import joblib
 import onnxruntime as ort
 import urllib.request
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request, File, UploadFile, status
+from fastapi import FastAPI, Request, File, UploadFile, status, HTTPException
 from fastapi.responses import JSONResponse
 from slowapi import Limiter
 from slowapi.errors import RateLimitExceeded
@@ -38,6 +39,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.requests import Request
 import resource
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 
 # 모델 저장 경로 설정
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -88,13 +91,18 @@ STATIC_DIR = os.path.join(BASE_DIR, "static")
 SOUND_DIR = os.path.join(BASE_DIR, "static", "sound")
 
 # FastAPI 앱 생성 시 lifespan 등록
-app = FastAPI(title="AhriEyes 딥페이크 탐지 시스템", lifespan=lifespan)
+app = FastAPI(title="AhriEyes 딥페이크 탐지 시스템", lifespan=lifespan, version="1.2.0")
 app.mount("/sound", StaticFiles(directory=SOUND_DIR), name="sound")
 
 # 정적 파일 및 템플릿 연결
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 app.mount("/sound", StaticFiles(directory=SOUND_DIR), name="sound")
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
+
+# 단일 워커 스레드 풀: 512MB 환경에서 추론 연산이 겹치는 것을 원천 차단
+inference_executor = ThreadPoolExecutor(max_workers=1)
+# 비동기 대기열 락: 들어온 순서대로 차례차례 진입하도록 제어
+inference_lock = asyncio.Lock()
 
 def get_real_ip(request: Request) -> str:
     # 프록시(Cloudflare/Render)를 거쳐 전달된 실제 접속자 IP 확인
@@ -185,7 +193,7 @@ def get_onnx_session(filename: str) -> ort.InferenceSession:
 # -------------------------------------------------------------
 # [엔드포인트 라우팅]
 # -------------------------------------------------------------
-@app.api_route("/", methods=["GET", "HEAD"])
+@app.api_route("/", methods=["GET", "HEAD"]) # GET 및 HEAD 라우터 요청 허용
 async def index(request: Request):
     """메인 대시보드 페이지 렌더링"""
     return templates.TemplateResponse(
@@ -193,14 +201,28 @@ async def index(request: Request):
         name = "index.html"
     )
 
-@app.post("/predict")
-@limiter.limit("10/minute")
+@app.post("/predict") # POST 요청만 허용
+@limiter.limit("10/minute") # 1분당 10회 요청 제한
 
 async def predict(request: Request, file: UploadFile = File(...)):
     """3대 앙상블 ONNX 추론 및 메타 로지스틱 회귀 판독 파이프라인"""
+    image_bytes = await file.read()
+    loop = asyncio.get_running_loop()
+
+    async with inference_lock:
+        result = await loop.run_in_executor(
+            inference_executor,
+            run_3tier_ensemble_pipeline,
+            image_bytes
+        )
+        return result
+    
+def run_3tier_ensemble_pipeline(image_bytes: bytes) -> dict:
+    """3대 앙상블 ONNX 추론 및 메타 로지스틱 회귀 판독 파이프라인"""
+    
     try:
-        # 1. 업로드 이미지 로드 및 전처리
-        image = Image.open(file.file).convert("RGB")
+        # 1. 넘겨받은 이미지 바이트를 PIL Image로 변환 후 전처리
+        image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
         input_data = preprocess_image(image)
 
         # --- [1단계] EfficientNet ONNX 추론 ---
@@ -267,6 +289,10 @@ async def predict(request: Request, file: UploadFile = File(...)):
             }
         }
 
-    except Exception as e:
+    except Exception as e: # 예외처리
         traceback.print_exc()
         return {"error": str(e), "label": None}
+
+    finally:
+        # 가비지 컬렉션 및 메모리 해제
+        gc.collect()
