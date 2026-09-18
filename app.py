@@ -38,6 +38,7 @@ from slowapi.errors import RateLimitExceeded
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.requests import Request
+from huggingface_hub import hf_hub_download
 import resource
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
@@ -47,13 +48,16 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_DIR = os.path.join(BASE_DIR, "models")
 os.makedirs(MODEL_DIR, exist_ok = True)
 
-# 릴리즈 다운로드 베이스 URL
-RELEASE_URL = "https://github.com/starrush26/AhriEyes/releases/download/v1.0.0"
+# Hugging Face 저장소 ID - 허깅페이스 모델 저장소에서 다운로드
+HF_REPO_ID = "kihyeonlee/ahrieyes-models"
 
 # 다운로드 대상 파일 목록
 MODEL_FILES = [
     "convnext_int8.onnx",
     "vit_int8.onnx",
+    "efficientnet.onnx",
+    "efficientnet.onnx.data",
+    "stacking_meta_logistic_model.pkl"
 ]
 
 # 모델 파일 존재 여부 확인 및 다운로드 함수 정의
@@ -63,10 +67,17 @@ def ensure_models_exist():
 
         # 모델 파일 존재 여부 확인
         if not os.path.exists(file_path):
-            download_url = f"{RELEASE_URL}/{filename}"
-            print(f"[Model Downloader] {filename} 다운로드 중...")
-            urllib.request.urlretrieve(download_url, file_path)
-            print(f"[Model Downloader] {filename} 완료!")
+            print(f"[Model Downloader] HF에서 {filename} 다운로드 중...")
+            downloaded_cache_path = hf_hub_download(
+                repo_id = HF_REPO_ID,
+                filename = filename,
+                local_dir = MODEL_DIR,
+                local_dir_use_symlinks = False
+            )
+            print(f"[Model Downloader] {filename} 완료! -> {file_path}")
+
+        else:
+            print(f"[Model Downloader] {filename} 로컬 캐시 확인 완료.")
 
 # 서버 부팅 시 모델 파일 존재 여부 확인 및 자동 다운로드
 ensure_models_exist()

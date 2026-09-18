@@ -3,8 +3,7 @@ __pycache__/
 *.pyc
 .env
 models/*.onnx
-!models/efficientnet.onnx
 models/*.data
-!models/efficientnet.onnx.data
+models/*.pkl
 models/*.pth
 models/.cache/
