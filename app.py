@@ -16,9 +16,16 @@
 # git pull origin main
 
 # ------- 버전 업그레이드 -------
+# 1. 수정된 파일 스테이징
 #git add .
-#git commit -m "feat: Add rate limiting (10 req/min) for abuse prevention (v1.1.0)"
-#git tag -a v1.1.0 -m "Release v1.1.0: Rate limiting and abuse prevention"
+
+# 2. 커밋 메시지 작성
+#git commit -m "docs: bump version to v2.0.0 in frontend"
+
+# 3. v2.0.0 릴리즈 태그 생성
+#it tag -a v2.0.0 -m "Release v2.0.0: Hugging Face Model Hub Dynamic Pipeline & Stacking Ensemble Optimization"
+
+# 4. 브랜치 커밋과 태그를 GitHub로 동시 푸시
 #git push origin main --tags
 
 import os
