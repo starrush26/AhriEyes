@@ -634,70 +634,78 @@
     --------------------------------------------------------- */
 
         @media (max-width: 767px) {
-            /* 1) 화면 전체를 가로 배치가 아닌 세로(수직) 배치로 강제 */
+            /* 1. 수직 배치 유지 (절대 유지!) */
             body {
                 display: flex !important;
                 flex-direction: column !important;
                 align-items: center !important;
                 justify-content: flex-start !important;
                 width: 100% !important;
-                overflow-x: hidden !important; /* 가로 스크롤 방지 */
+                overflow-x: hidden !important;
             }
 
-            /* 2) 아바타와 말풍선을 메인 카드 '위쪽'에 가로로 나란히 배치 */
+            /* 2. 아바타와 말풍선 컨테이너 정렬 */
             .ahri-side-art {
-                display: flex !important; 
-                position: static !important; /* 고정 위치 해제 */
-                flex-direction: row !important; /* 가로 배치 */
+                display: flex !important;
+                position: static !important;
+                flex-direction: row !important;
                 align-items: center !important;
                 justify-content: center !important;
-                gap: 10px !important;
+                gap: 12px !important;
                 width: 100% !important;
                 height: auto !important;
-                margin: 16px auto 8px auto !important;
-                pointer-events: auto !important; /* 모바일에서는 클릭 가능 */
+                margin: 20px auto 10px auto !important;
+                pointer-events: auto !important;
             }
 
             .ahri-char-wrapper {
                 display: flex !important;
                 align-items: center !important;
                 justify-content: center !important;
-                gap: 10px !important;
                 width: auto !important;
                 height: auto !important;
+                position: relative !important;
             }
 
-            /* 미니 아바타 원형 */
+            /* 3. 아리 원형 아바타 확대 (74px + 얼굴 중심 크롭) */
             .ahri-img {
-                height: 48px !important;
-                width: 48px !important;
+                height: 74px !important;
+                width: 74px !important;
+                min-width: 74px !important;
+                min-height: 74px !important;
                 border-radius: 50% !important;
-                border: 2px solid rgba(224, 49, 136, 0.6) !important;
+                border: 2.5px solid rgba(224, 49, 136, 0.8) !important;
                 object-fit: cover !important;
+                object-position: top center !important;
                 flex-shrink: 0 !important;
-                box-shadow: 0 0 10px rgba(224, 49, 136, 0.35) !important;
+                box-shadow: 0 0 14px rgba(224, 49, 136, 0.5) !important;
             }
 
-            /* 모바일 말풍선 */
+            /* 4. 모바일에서 구슬 숨기기*/
+            .ahri-orb, [class*="orb"] {
+                display: none !important;
+            }
+
+            /* 5. 말풍선 크기 및 여백 */
             .speech-bubble, [class*="bubble"] {
                 position: static !important;
-                max-width: 240px !important;
-                font-size: 0.8rem !important;
-                line-height: 1.3 !important;
-                padding: 8px 12px !important;
+                max-width: 220px !important;
+                font-size: 0.85rem !important;
+                line-height: 1.35 !important;
+                padding: 10px 14px !important;
                 word-break: keep-all !important;
                 margin: 0 !important;
             }
 
-            /* 3) 메인 카드(container)가 찌그러지지 않고 화면 폭을 정상 차지하도록 복구 */
+            /* 6. 메인 카드 컨테이너 유지 */
             .container {
                 width: 92% !important;
                 max-width: 480px !important;
                 min-width: 320px !important;
-                flex-shrink: 0 !important; /* 옆 요소 때문에 찌그러지는 것 방지 */
+                flex-shrink: 0 !important;
                 margin: 10px auto 24px auto !important;
                 padding: 20px 14px !important;
-                max-height: none !important; /* 모바일에서는 자연스러운 전체 스크롤 */
+                max-height: none !important;
             }
             }
 
