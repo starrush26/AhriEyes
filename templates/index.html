@@ -546,26 +546,33 @@
    --------------------------------------------------------- */
         @media (min-width: 1200px) {
         .ahri-side-art {
-            display: block !important; /* 데스크톱에서만 보이도록 강제 */
-            position: fixed;
-            bottom: 0;
-            left: calc(50% + 150px);
-            z-index: 100;
-            pointer-events: none; /* 마우스 이벤트 무시 */
-            user-select: none; /* 텍스트 선택 방지 */
-            opacity: 0.95; /* 살짝 투명하게 */
+            display: block !important;
+            position: fixed !important;
+            top: auto !important;         
+            bottom: 0 !important;   /*  바닥에 딱 달라붙게 고정 */
+            left: calc(50% + 150px) !important;
+            transform: none !important;    /* 위로 튕겨 올리는 translate 효과 원천 차단 */
+            height: 85vh !important;
+            max-height: 800px !important;
+            z-index: 100 !important;
+            pointer-events: none !important;
+            user-select: none !important;
+            opacity: 0.95 !important;
             }
 
             .ahri-char-wrapper {
-                position: relative;
-                display: inline-block;
+                position: relative !important;
+                display: inline-block !important;
+                height: 100% !important;
             }
 
             .ahri-img {
-                height: 82vh;
-                max-height: 820px;
-                width: auto;
-                object-fit: contain;
+                display: block !important;
+                height: 100% !important;        /* 래퍼 높이에 맞춤 */
+                max-height: 800px !important;
+                width: auto !important;
+                object-fit: contain !important;
+                vertical-align: bottom !important;
             }
         }
 
