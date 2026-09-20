@@ -23,7 +23,7 @@
 #git commit -m "docs: bump version to v2.0.0 in frontend"
 
 # 3. v2.0.0 릴리즈 태그 생성
-#it tag -a v2.0.0 -m "Release v2.0.0: Hugging Face Model Hub Dynamic Pipeline & Stacking Ensemble Optimization"
+#git tag -a v2.0.0 -m "Release v2.0.0: Hugging Face Model Hub Dynamic Pipeline & Stacking Ensemble Optimization"
 
 # 4. 브랜치 커밋과 태그를 GitHub로 동시 푸시
 #git push origin main --tags
