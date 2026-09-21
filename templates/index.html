@@ -681,31 +681,8 @@
                 box-shadow: 0 0 14px rgba(224, 49, 136, 0.5) !important;
             }
 
-            /* 4. 모바일에서 구슬 크기를 작게 하기*/
-            .ahri-orb, [class*="orb"] {
-                display: block !important;
-                position: absolute !important;
-
-                /* 카드가 시작되는 상단에서의 거리 */
-                top: 24px !important;           
-                left: 50% !important;
-                bottom: auto !important;
-                right: auto !important;
-                transform: translateX(-50%) !important;
-                
-                /* 검은 원 크기에 알맞은 사이즈 (약 32px) */
-                width: 32px !important;
-                height: 32px !important;
-                min-width: 32px !important;
-                min-height: 32px !important;
-                
-                /* 영롱한 푸른빛 발광 효과 */
-                border-radius: 50% !important;
-                background: radial-gradient(circle, #ffffff 15%, #e0f2fe 40%, #38bdf8 75%, rgba(56, 189, 248, 0) 100%) !important;
-                box-shadow: 0 0 14px #38bdf8, 0 0 25px rgba(56, 189, 248, 0.7) !important;
-                
-                z-index: 20 !important;
-                pointer-events: none !important;
+            .ahri-spirit-orb, .ahri-orb {
+                display: none !important;
             }
 
             /* 5. 말풍선 크기 및 여백 */
