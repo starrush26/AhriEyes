@@ -560,6 +560,13 @@
             opacity: 0.95 !important;
             }
 
+            /* 데스크톱에서는 구슬 SVG(확장 가능한 벡터 그래픽스)가 보이게 설정 */
+            .spirit-orb-svg {
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+
             .ahri-char-wrapper {
                 position: relative !important;
                 display: inline-block !important;
@@ -656,6 +663,18 @@
                 height: auto !important;
                 margin: 20px auto 10px auto !important;
                 pointer-events: auto !important;
+            }
+
+            /* 모바일에서 아리 영혼 구슬과 SVG 숨기기 */
+            .ahri-spirit-orb,
+            .spirit-orb-svg,
+            .ahri-orb,
+            [class*="orb"] {
+                display: none !important;
+                visibility: hidden !important;
+                opacity: 0 !important;
+                width: 0 !important;
+                height: 0 !important;
             }
 
             .ahri-char-wrapper {
