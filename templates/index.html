@@ -617,6 +617,18 @@
                 flex-shrink: 0;
                 box-shadow: 0 0 16px rgba(224, 49, 136, 0.45);
             }
+
+            /* 태블릿/분할창 구간에서 튀어나오는 거대 구슬 숨김 */
+            .ahri-char-wrapper .spirit-orb-svg,
+            .ahri-side-art .spirit-orb-svg,
+            .ahri-spirit-orb {
+                display: none !important;
+            }
+
+            /* 메인 카드가 한쪽으로 쏠리지 않도록 중앙 정렬 유지 */
+            .container {
+                margin: 20px auto !important;
+            }
             /* 태블릿용 여유로운 말풍선 */
             .speech-bubble, [class*="bubble"] {
                 position: static !important;
@@ -626,12 +638,6 @@
                 padding: 10px 16px !important;
                 word-break: keep-all;
                 margin: 0 !important;
-            }
-            .container {
-                width: 85% !important;
-                max-width: 600px !important;
-                margin: 20px auto !important;
-                padding: 24px 20px !important;
             }
         }
 
