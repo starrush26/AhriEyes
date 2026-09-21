@@ -589,54 +589,47 @@
     --------------------------------------------------------- */
 
         @media (min-width: 768px) and (max-width: 1199px) {
-            .ahri-side-art {
+            /* 1. 가로 나란히 배치 유지 */
+            body {
                 display: flex !important;
-                position: static !important;
-                align-items: center;
-                justify-content: center;
-                gap: 16px;
-                margin: 0 auto 20px auto !important;
-                width: 100%;
-                height: auto !important;
-                pointer-events: auto;
-            }
-            .ahri-char-wrapper {
-                display: flex !important;
-                align-items: center;
-                justify-content: center;
-                gap: 16px;
-                width: 100%;
-            }
-            /* 태블릿용 중간 아바타 (84px) */
-            .ahri-img {
-                height: 84px !important;
-                width: 84px !important;
-                border-radius: 50% !important;
-                border: 2.5px solid rgba(224, 49, 136, 0.7);
-                object-fit: cover !important;
-                flex-shrink: 0;
-                box-shadow: 0 0 16px rgba(224, 49, 136, 0.45);
+                flex-direction: row !important;
+                justify-content: center !important;
+                align-items: center !important;
+                gap: 20px !important;
             }
 
-            /* 태블릿/분할창 구간에서 튀어나오는 거대 구슬 숨김 */
+            /* 2. 사이드 캐릭터 영역을 우측 전신 형태로 복원 */
+            .ahri-side-art {
+                display: flex !important;
+                position: relative !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                width: auto !important;
+                max-width: 380px !important;
+                order: 2 !important; /* 카드 오른쪽에 위치 */
+            }
+
+            /* 3. 아바타 원형 크롭 해제 -> 세로 전신 비율 복구 */
+            .ahri-img {
+                width: auto !important;
+                height: 75vh !important;       /* 화면 높이에 맞춤 */
+                max-height: 600px !important;
+                border-radius: 0 !important;   /* 동그란 테두리 해제 */
+                border: none !important;
+                box-shadow: none !important;
+                object-fit: contain !important;
+            }
+
+            /* 4. 구슬 숨김 유지 */
             .ahri-char-wrapper .spirit-orb-svg,
             .ahri-side-art .spirit-orb-svg,
             .ahri-spirit-orb {
                 display: none !important;
             }
 
-            /* 메인 카드가 한쪽으로 쏠리지 않도록 중앙 정렬 유지 */
+            /* 5. 메인 카드는 왼쪽으로 배치 */
             .container {
-                margin: 20px auto !important;
-            }
-            /* 태블릿용 여유로운 말풍선 */
-            .speech-bubble, [class*="bubble"] {
-                position: static !important;
-                max-width: 460px !important;
-                font-size: 0.95rem !important;
-                line-height: 1.45;
-                padding: 10px 16px !important;
-                word-break: keep-all;
+                order: 1 !important;
                 margin: 0 !important;
             }
         }
