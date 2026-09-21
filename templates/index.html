@@ -665,18 +665,13 @@
                 pointer-events: auto !important;
             }
 
-            /* 모바일에서 아리 영혼 구슬과 SVG 숨기기 */
-            .ahri-spirit-orb,
-            .spirit-orb-svg,
-            .ahri-orb,
-            [class*="orb"] {
+            /* 모바일에서 아리 영혼 구슬 SVG 숨기기 */
+            .ahri-char-wrapper .spirit-orb-svg,
+            .ahri-side-art .spirit-orb-svg,
+            .ahri-spirit-orb {
                 display: none !important;
                 visibility: hidden !important;
-                opacity: 0 !important;
-                width: 0 !important;
-                height: 0 !important;
             }
-
             .ahri-char-wrapper {
                 display: flex !important;
                 align-items: center !important;
