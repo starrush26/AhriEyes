@@ -75,8 +75,11 @@ HF_REPO_ID = "kihyeonlee/ahrieyes-models"
 # 다운로드 대상 파일 목록
 MODEL_FILES = {
     "efficientnet": "efficientnet.onnx",
+    "efficientnet_data": "efficientnet.onnx.data",
     "convnext": "convnext.onnx",
-    "vit": "vit.onnx"
+    "convnext_data": "convnext.onnx.data",
+    "vit": "vit_int8.onnx",
+    "stacking_meta": "stacking_meta_logistic_model.pkl"
 }
 
 # 모델 파일 존재 여부 확인 및 다운로드 함수 정의
