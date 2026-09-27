@@ -802,6 +802,379 @@
         }
         }
 
+        /* 리포트 다운로드 액션 래퍼 */
+        .report-action-wrapper {
+        margin-top: 24px;
+        text-align: center;
+        width: 100%;
+        }
+
+        /* 기본 비활성화 상태 (잠김 & 차분한 반투명 그레이) */
+        .report-btn-disabled {
+        width: 100%;
+        padding: 13px 20px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: #6b7280;
+        font-size: 0.95rem;
+        font-weight: 600;
+        letter-spacing: -0.3px;
+        cursor: not-allowed;
+        user-select: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-sizing: border-box;
+        }
+
+        .report-btn-disabled .btn-icon {
+        stroke: #6b7280;
+        transition: stroke 0.4s ease;
+        }
+
+        /* 분석 완료 시 활성화 상태 (영혼의 꽃 네온 글로우 테마) */
+        .report-btn-active {
+        background: linear-gradient(135deg, rgba(255, 70, 85, 0.18), rgba(168, 85, 247, 0.22)) !important;
+        border: 1px solid #ff4655 !important;
+        color: #ffffff !important;
+        cursor: pointer !important;
+        box-shadow: 0 0 16px rgba(255, 70, 85, 0.35), inset 0 0 12px rgba(168, 85, 247, 0.2);
+        }
+
+        .report-btn-active .btn-icon {
+        stroke: #ffffff !important;
+        }
+
+        /* 활성화 상태에서 마우스 호버 시 인터랙션 */
+        .report-btn-active:hover {
+        background: linear-gradient(135deg, rgba(255, 70, 85, 0.35), rgba(168, 85, 247, 0.38)) !important;
+        border-color: #ff7582 !important;
+        box-shadow: 0 0 24px rgba(255, 70, 85, 0.6), inset 0 0 16px rgba(168, 85, 247, 0.35);
+        transform: translateY(-2px);
+        }
+
+        .report-btn-active:active {
+        transform: translateY(0);
+        }
+
+        /* XAI 안면 포렌식 비교 뷰어 (Side-by-Side) */
+        .forensic-compare-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 16px;
+        margin-top: 20px;
+        padding: 14px;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 14px;
+        box-sizing: border-box;
+        }
+
+        .forensic-view-box {
+        flex: 1;
+        text-align: center;
+        max-width: 150px;
+        }
+
+        .view-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #9ca3af;
+        margin-bottom: 8px;
+        letter-spacing: 0.5px;
+        }
+
+        .view-label.highlight {
+        color: #ff4655;
+        text-shadow: 0 0 8px rgba(255, 70, 85, 0.5);
+        }
+
+        .forensic-img {
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        object-fit: cover;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        display: block;
+        }
+
+        /* 리포트 다운로드 버튼 스타일링 */
+        .report-download-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px 26px; /* 버튼 크기 확장 */
+            font-size: 15px;
+            font-weight: 700;
+            font-family: inherit;
+            color: #ffffff;
+            background: linear-gradient(135deg, rgba(255, 45, 85, 0.2), rgba(120, 20, 60, 0.4));
+            border: 1.5px solid rgba(255, 60, 110, 0.85);
+            border-radius: 10px; /* 부드럽게 둥근 모서리 */
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 15px rgba(255, 45, 85, 0.25), inset 0 0 8px rgba(255, 45, 85, 0.15);
+            backdrop-filter: blur(4px);
+            margin-top: 15px;
+        }
+
+        /* 다운로드 SVG 벡터 아이콘 */
+        .report-download-btn .download-icon {
+            width: 18px;
+            height: 18px;
+            stroke: #ff3b6f;
+            transition: transform 0.2s ease, stroke 0.2s ease;
+        }
+
+        /* 마우스 올렸을 때 (Hover) 액션 */
+        .report-download-btn:hover {
+            background: linear-gradient(135deg, rgba(255, 45, 85, 0.45), rgba(180, 20, 80, 0.65));
+            border-color: #ff3b6f;
+            box-shadow: 0 0 25px rgba(255, 45, 85, 0.55), inset 0 0 12px rgba(255, 45, 85, 0.3);
+            transform: translateY(-2px); /* 살짝 위로 떠오르는 느낌 */
+            color: #ffffff;
+        }
+
+        .report-download-btn:hover .download-icon {
+            stroke: #ffffff;
+            transform: translateY(2px); /* 아이콘이 살짝 아래로 내려가며 다운로드 유도 */
+        }
+
+        /* 클릭했을 때 (Active) */
+        .report-download-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 0 10px rgba(255, 45, 85, 0.4);
+        }
+
+        /* 비활성화 상태 (다운로드 진행 중) */
+        .report-download-btn:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* XAI 컬러 스케일 범례 컨테이너 */
+        .xai-legend-container {
+            width: 100%;
+            max-width: 460px;
+            margin: 16px auto 8px auto; /* 위쪽과 간격을 16px 띄워서 위 요소 잔상 침범 차단 */
+            padding: 0 4px;
+            box-sizing: border-box;
+            position: relative;
+            z-index: 2; /* 독립 레이어로 격리 */
+        }
+
+        /* 실제 그라데이션 바 */
+        .xai-legend-bar {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            border: 0;
+            outline: none;
+            box-shadow: none; /* 번짐 방지 */
+            display: block; /* 
+
+            /* OpenCV JET 컬러맵 스펙트럼 */
+            background: linear-gradient( /*그라데이션 효과 적용*/
+                to right, 
+                #031038 0%, 
+                #031038 10%, 
+                #0055ff 25%, 
+                #00e5aa 45%, 
+                #ffff00 65%, 
+                #ff6600 85%, 
+                #ff0033 100%
+            );
+        }
+
+        /* 좌우 설명 텍스트 */
+        .xai-legend-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            line-height: 1; /* 텍스트 높이 튀는 현상 방지 */
+        }
+
+        .xai-legend-labels .label-safe {
+            color: #4da6ff; /* 사이안 블루 */
+        }
+
+        .xai-legend-labels .label-danger {
+            color: #ff4d6d; /* 네온 핑크레드 */
+        }
+
+        /* 푸터 진위 검증 버튼 */
+        .verify-trigger-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0, 229, 170, 0.08);
+            border: 1px solid rgba(0, 229, 170, 0.3);
+            color: #00e5aa;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .verify-trigger-btn:hover {
+            background: rgba(0, 229, 170, 0.2);
+            box-shadow: 0 0 10px rgba(0, 229, 170, 0.4);
+            transform: translateY(-1px);
+        }
+
+        /* 모달 백드롭 */
+        .verify-modal-backdrop {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(5, 7, 15, 0.8);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        /* 모달 카드 */
+        .verify-modal-card {
+            width: 90%;
+            max-width: 480px;
+            background: #0d111d;
+            border: 1px solid rgba(0, 229, 170, 0.35);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 0 35px rgba(0, 0, 0, 0.9), 0 0 15px rgba(0, 229, 170, 0.2);
+            box-sizing: border-box;
+        }
+
+        .verify-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .verify-modal-header h3 {
+            margin: 0;
+            font-size: 14px;
+            letter-spacing: 1px;
+            color: #00e5aa;
+            text-shadow: 0 0 8px rgba(0, 229, 170, 0.4);
+        }
+        .verify-close-btn {
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 24px;
+            line-height: 1;
+            cursor: pointer;
+        }
+        .verify-close-btn:hover { color: #fff; }
+
+        .verify-modal-desc {
+            font-size: 12px;
+            color: #8b9bb4;
+            margin: 10px 0 18px 0;
+            line-height: 1.5;
+        }
+
+        /* 드롭존 */
+        .verify-dropzone {
+            border: 2px dashed rgba(0, 229, 170, 0.35);
+            border-radius: 8px;
+            background: rgba(13, 22, 38, 0.6);
+            padding: 26px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .verify-dropzone:hover, .verify-dropzone.drag-over {
+            border-color: #00e5aa;
+            background: rgba(0, 229, 170, 0.1);
+        }
+        .verify-upload-icon {
+            width: 32px;
+            height: 32px;
+            stroke: #00e5aa;
+            margin-bottom: 8px;
+        }
+        .dropzone-text {
+            font-size: 13px;
+            color: #e1e7f0;
+            margin: 0 0 4px 0;
+        }
+        .dropzone-sub {
+            font-size: 11px;
+            color: #657795;
+            display: block;
+        }
+
+        /* 로딩 스피너 */
+        .verify-loader {
+            text-align: center;
+            padding: 24px 0;
+            color: #8b9bb4;
+            font-size: 12px;
+        }
+        .cyber-spinner {
+            width: 28px; height: 28px;
+            border: 3px solid rgba(0, 229, 170, 0.2);
+            border-top-color: #00e5aa;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 10px auto;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* 판독 결과 박스 */
+        .verify-result-box {
+            margin-top: 16px;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+        .verify-result-box.genuine {
+            background: rgba(0, 229, 170, 0.08);
+            border: 1px solid #00e5aa;
+            box-shadow: 0 0 10px rgba(0, 229, 170, 0.2);
+            color: #e1e7f0;
+        }
+        .verify-result-box.tampered {
+            background: rgba(255, 0, 51, 0.08);
+            border: 1px solid #ff0033;
+            box-shadow: 0 0 10px rgba(255, 0, 51, 0.2);
+            color: #e1e7f0;
+        }
+        .result-status-title {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .verify-result-box.genuine .result-status-title { color: #00e5aa; }
+        .verify-result-box.tampered .result-status-title { color: #ff0033; }
+        .verify-reset-btn {
+            margin-top: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+        .verify-reset-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
     </style>
 </head>
 <body>
@@ -932,7 +1305,7 @@
                 <ellipse cx="61" cy="68" rx="14" ry="16" fill="#e0f2fe" opacity="0.9" />
             </svg>
         </div>
-        <div class="brand-title">AhriEyes <span style="font-size:12px; color:#e03188;">v2.0.1</span></div>
+        <div class="brand-title">AhriEyes <span style="font-size:12px; color:#e03188;">v2.1.0</span></div>
         <div class="brand-sub">2단계 이기종 스태킹 앙상블 기반 딥페이크 탐지 사이트</div>
         <div class="brand-caution">※ [주의] 본 시스템은 타인의 얼굴을 도용한 안면 합성(Face-Swap) 탐지에 특화되어 있습니다. 텍스트 기반 순수 생성물(Midjourney 등 T2I)은 분석 대상에서 제외됩니다 ※</div>
         <div class="brand-caution" style="color: #ff4d4f; border-color: rgba(255, 77, 79, 0.4);">
@@ -1045,6 +1418,38 @@
                 <div class="submodel-val" id="probVit">0.0%</div>
             </div>
         </div>
+
+        <!-- XAI 안면 포렌식 비교 뷰어 (Side-by-Side) -->
+        <div id="forensic-compare-container" class="forensic-compare-container" style="display: none;">
+            <div class="forensic-view-box">
+            <div class="view-label">INPUT FACE (224×224)</div>
+            <img id="forensic-orig-img" class="forensic-img" alt="Input Face" />
+            </div>
+            <div class="forensic-view-box">
+            <div class="view-label highlight">XAI ARTIFACT HEATMAP</div>
+            <img id="forensic-heat-img" class="forensic-img" alt="Artifact Heatmap" />
+            </div>
+        </div>
+
+        <div class="xai-legend-container">
+            <div class="xai-legend-bar"></div>
+            <div class="xai-legend-labels">
+                    <!-- 컬러 범례표 설명 문구 -->
+                    <span class="label-safe">&lt; 정상 영역 (NATURAL)</span>
+                    <span class="label-danger">변조된 영역 (TAMPERED) &gt;</span>
+            </div>
+        </div>
+
+        <div class="report-action-wrapper" style="margin-top: 24px; text-align: center;">
+            <button id="download-report-btn" class="report-download-btn" onclick="downloadReport()">
+                <svg class="download-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <span class="btn-text">리포트 다운로드</span>
+            </button>
+        </div>
     </div>
     <footer class="dev-credits">
         <div class="credit-item">
@@ -1148,6 +1553,13 @@
                 </svg>
                 <span>공식 X계정</span>
             </a>
+            <button type="button" class="verify-trigger-btn" onclick="openVerifyModal()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    <path d="m9 12 2 2 4-4"/>
+                </svg>
+                리포트 진위 검증
+            </button>
         </div>
 
         <p style="margin-top: 12px; font-size: 0.8rem; color: #888; letter-spacing: 0.3px;">
@@ -1364,7 +1776,29 @@
     }
     // 백엔드 키 네이밍 지원
     function displayAllGauges(data) {
-        if (!data || !data.label) {
+        // 혹시 래핑되어 있을 경우 언래핑
+        if (data.data) data = data.data; 
+        if (data.result) data = data.result;
+        // --- XAI 포렌식 비교 뷰어 (원본 vs 히트맵) 데이터 바인딩 ---
+        const compareContainer = document.getElementById("forensic-compare-container");
+        const origImg = document.getElementById("forensic-orig-img");
+        const heatImg = document.getElementById("forensic-heat-img");
+
+        // 사용자가 업로드했던 미리보기 이미지 엘리먼트 가져오기
+        const uploadedPreview = document.getElementById("facePreview") || 
+                                document.getElementById("preview-img") || 
+                                document.querySelector(".preview-img");
+
+        if (data.heatmap && compareContainer && origImg && heatImg) {
+            if (uploadedPreview && uploadedPreview.src) {
+                origImg.src = uploadedPreview.src;  // 사용자가 올린 원본 얼굴
+            }
+            heatImg.src = data.heatmap;             // 백엔드에서 생성된 Base64 히트맵
+            compareContainer.style.display = "flex"; // 숨겨둔 뷰어 노출
+        }
+
+        // data 객체 자체만 있거나 fake_probability가 있으면 통과하도록 수정
+        if (!data || (!data.label && data.fake_probability === undefined && data.ensemble_score === undefined)) {
             console.error("정상적인 분석 데이터가 아닙니다:", data);
             return;
         }
@@ -1442,7 +1876,219 @@
 
         animateValue('probVit', 0, vitPercent, 800, '%');
         animateValue('vitScore', 0, vitPercent, 800, '%');
+
+        // 보고서 다운로드 버튼 활성화
+        const reportBtn = document.getElementById("download-report-btn");
+
+        if (reportBtn) { // 버튼 활성화
+            reportBtn.disabled = false; // 버튼 비활성화 해제
+            reportBtn.classList.remove("report-btn-disabled"); // 비활성화 클래스 제거
+            reportBtn.classList.add("report-btn-active"); // 활성화 클래스 추가
+        }
     }
+        // --- 포렌식 리포트 클라이언트 캡처 및 다운로드 ---
+    async function downloadReport() {
+        // 1. 다운로드 버튼을 먼저 찾음
+        const downloadBtn = document.querySelector('button[onclick*="downloadReport"]') 
+                        || document.querySelector('#download-report-btn')
+                        || event?.currentTarget;
+
+        // 2. 버튼의 부모 또는 직전 형제/결과 박스를 자동으로 역추적
+        // 버튼을 감싸고 있는 가장 가까운 카드/섹션을 탐색 (closest)
+        let reportCard = downloadBtn ? downloadBtn.closest('.card, .result-card, .box, section, div[id*="result"]') : null;
+
+        // 만약 closest로 못 찾으면 버튼의 직계 부모 요소를 타겟으로 잡음
+        if (!reportCard && downloadBtn) {
+            reportCard = downloadBtn.parentElement;
+        }
+
+        if (!reportCard) {
+            alert("캡처할 결과 영역을 찾을 수 없습니다.");
+            return;
+        }
+
+        const textSpan = downloadBtn ? downloadBtn.querySelector('.btn-text') : null;
+        const originalBtnText = textSpan ? textSpan.innerText : (downloadBtn ? downloadBtn.innerText : '');
+
+        if (textSpan) {
+            textSpan.innerText = "리포트 생성 중...";
+            downloadBtn.disabled = true;
+        }
+
+        try {
+            // 3. 캡처 실행 (버튼은 자체 배제)
+            const canvas = await html2canvas(reportCard, {
+                backgroundColor: '#0a0d14',
+                scale: 2,
+                useCORS: true,
+                ignoreElements: (element) => {
+                    return element === downloadBtn || element.classList.contains('no-export');
+                }
+            });
+
+            const ctx = canvas.getContext('2d');
+
+            // 4. 시각적 워터마크 각인
+            const footerHeight = 60; // 하단 인증 바 높이
+            const finalCanvas = document.createElement('canvas');
+            finalCanvas.width = canvas.width;
+            finalCanvas.height = canvas.height + footerHeight;
+
+            const fCtx = finalCanvas.getContext('2d');
+            // 기존 캡처 내용 복사
+            fCtx.drawImage(canvas, 0, 0);
+
+            // 하단 인증 바 배경 (세련된 다크 블루-블랙 + 상단 네온 구분선)
+            fCtx.fillStyle = '#06080d';
+            fCtx.fillRect(0, canvas.height, finalCanvas.width, footerHeight);
+
+            fCtx.strokeStyle = 'rgba(255, 75, 130, 0.4)'; // 상단 핑크 네온 라인
+            fCtx.lineWidth = 2;
+            fCtx.beginPath();
+            fCtx.moveTo(0, canvas.height);
+            fCtx.lineTo(finalCanvas.width, canvas.height);
+            fCtx.stroke();
+
+            // 인증 문구 및 타임스탬프 작성
+            const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
+            
+            // 좌측: 공식 인증 배지
+            fCtx.font = 'bold 15px "Segoe UI", sans-serif';
+            fCtx.fillStyle = '#00ffcc'; // 네온 민트
+            fCtx.textAlign = 'left';
+            fCtx.fillText('✔ AHRIEYES OFFICIAL FORENSIC SEAL', 25, canvas.height + 36);
+
+            // 우측: 타임스탬프
+            fCtx.font = '13px monospace';
+            fCtx.fillStyle = '#a0aec0'; // 소프트 그레이
+            fCtx.textAlign = 'right';
+            fCtx.fillText(`VERIFIED: ${timestamp}`, finalCanvas.width - 25, canvas.height + 36);
+
+            // 5. 순수 픽셀 데이터(Raw Bytes) 추출 및 SHA-256 연산
+            const fImageData = fCtx.getImageData(0, 0, finalCanvas.width, finalCanvas.height);
+            // RGBA 버퍼 직접 추출
+            const rawHashBuffer = await crypto.subtle.digest("SHA-256", fImageData.data.buffer);
+            const rawHashHex = Array.from(new Uint8Array(rawHashBuffer))
+                .map(b => b.toString(16).padStart(2, '0')).join('');
+
+            // 6. 서버에 비밀 키 서명 요청 (SECRET_SALT 완전 은닉)
+            const signResponse = await fetch("/api/sign-report", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ raw_hash: rawHashHex })
+            });
+
+            if (!signResponse.ok) {
+                throw new Error("서버 공인 서명 발급에 실패했습니다.");
+            }
+            
+            const signData = await signResponse.json();
+            const serverSignature = signData.signature;
+
+            // 7. 캔버스 바이너리에 서버 공인 서명 메타데이터 주입
+            const base64Data = finalCanvas.toDataURL('image/png');
+            const blob = await (await fetch(base64Data)).blob();
+            const arrayBuffer = await blob.arrayBuffer();
+
+            const signedBuffer = addMetadataToPng(arrayBuffer, {
+                "Software": signData.software,
+                "Author": signData.author,
+                "Integrity-Hash": serverSignature,
+                "Verification-Status": signData.status
+            });
+
+            // 8. 파일 다운로드 실행
+            const signedBlob = new Blob([signedBuffer], { type: 'image/png' });
+            const downloadUrl = URL.createObjectURL(signedBlob);
+            const link = document.createElement('a');
+            const nowStr = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14);
+            link.download = `AhriEyes_Forensic_Report_${nowStr}.png`;
+            link.href = downloadUrl;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(downloadUrl);
+
+        } catch (err) {
+            console.error("리포트 다운로드 중 오류:", err);
+            alert("리포트 생성 중 오류가 발생했습니다.");
+        } finally {
+            if (downloadBtn) {
+                downloadBtn.innerText = originalBtnText || "리포트 다운로드";
+                downloadBtn.disabled = false;
+            }
+        }
+    }
+
+// ==========================================
+// 2. PNG 바이너리에 tEXt 청크를 직접 삽입하는 헬퍼 함수
+// ==========================================
+function addMetadataToPng(arrayBuffer, metadata) {
+    const uint8 = new Uint8Array(arrayBuffer);
+
+    // PNG 매직 넘버 검증 (89 50 4E 47 0D 0A 1A 0A)
+    if (uint8[0] !== 0x89 || uint8[1] !== 0x50 || uint8[2] !== 0x4E || uint8[3] !== 0x47) {
+        return arrayBuffer;
+    }
+
+    // CRC32 테이블 생성
+    const crcTable = [];
+    for (let n = 0; n < 256; n++) {
+        let c = n;
+        for (let k = 0; k < 8; k++) {
+            c = ((c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1));
+        }
+        crcTable[n] = c;
+    }
+    function getCRC(buf) {
+        let crc = 0xFFFFFFFF;
+        for (let i = 0; i < buf.length; i++) {
+            crc = crcTable[(crc ^ buf[i]) & 0xFF] ^ (crc >>> 8);
+        }
+        return (crc ^ 0xFFFFFFFF) >>> 0;
+    }
+
+    // 메타데이터 청크(tEXt) 리스트 바이너리 조립
+    const chunks = [];
+    for (const [key, value] of Object.entries(metadata)) {
+        const keyBytes = new TextEncoder().encode(key);
+        const valBytes = new TextEncoder().encode(value);
+        const dataLength = keyBytes.length + 1 + valBytes.length; // key + 0x00 + value
+
+        const chunk = new Uint8Array(12 + dataLength);
+        const view = new DataView(chunk.buffer);
+
+        // 청크 데이터 길이 (4바이트 Big-Endian)
+        view.setUint32(0, dataLength, false);
+        // 청크 타입: 'tEXt'
+        chunk.set([116, 69, 88, 116], 4);
+        // 키 + Null 바이트 + 값
+        chunk.set(keyBytes, 8);
+        chunk[8 + keyBytes.length] = 0x00;
+        chunk.set(valBytes, 9 + keyBytes.length);
+
+        // CRC32 체크섬 계산 (Type + Data)
+        const crc = getCRC(chunk.slice(4, 8 + dataLength));
+        view.setUint32(8 + dataLength, crc, false);
+
+        chunks.push(chunk);
+    }
+
+    // IHDR 청크 끝나는 지점(33바이트)을 분할하여 tEXt 주입
+    const ihdrEndOffset = 33;
+    const totalExtraLength = chunks.reduce((acc, c) => acc + c.length, 0);
+    const newBuffer = new Uint8Array(uint8.length + totalExtraLength);
+
+    newBuffer.set(uint8.subarray(0, ihdrEndOffset), 0);
+    let offset = ihdrEndOffset;
+    for (const ch of chunks) {
+        newBuffer.set(ch, offset);
+        offset += ch.length;
+    }
+    newBuffer.set(uint8.subarray(ihdrEndOffset), offset);
+
+    return newBuffer.buffer;
+}
 </script>
 <script>
 window.addEventListener('DOMContentLoaded', () => {
@@ -1467,7 +2113,161 @@ window.addEventListener('DOMContentLoaded', () => {
     scrollTarget.scrollTop += e.deltaY * 1.45;
     }, { passive: false });
 });
+
+// --- 포렌식 리포트 진위 검증 모달 제어 함수 ---
+function openVerifyModal() {
+    const modal = document.getElementById('verify-modal-backdrop');
+    if (modal) {
+        modal.style.display = 'flex';
+        resetVerifyState();
+    }
+}
+
+function closeVerifyModal(e) {
+    if (!e || e.target.id === 'verify-modal-backdrop' || e.target.classList.contains('verify-close-btn')) {
+        const modal = document.getElementById('verify-modal-backdrop');
+        if (modal) {
+            modal.style.display = 'none';
+            resetVerifyState();
+        }
+    }
+}
+
+function resetVerifyState() {
+    const loader = document.getElementById('verify-loader');
+    const resultBox = document.getElementById('verify-result-box');
+    const dropzone = document.getElementById('verify-dropzone');
+    const fileInput = document.getElementById('verify-file-input');
+
+    if (loader) loader.style.display = 'none';
+    if (resultBox) resultBox.style.display = 'none';
+    if (dropzone) dropzone.style.display = 'block';
+    if (fileInput) fileInput.value = '';
+}
+
+// 드래그 앤 드롭 이벤트 바인딩 (DOM 로드 후 자동 연결)
+window.addEventListener('DOMContentLoaded', () => {
+    const dropzone = document.getElementById('verify-dropzone');
+    if (!dropzone) return;
+
+    ['dragenter', 'dragover'].forEach(name => {
+        dropzone.addEventListener(name, (e) => {
+            e.preventDefault();
+            dropzone.classList.add('drag-over');
+        });
+    });
+
+    ['dragleave', 'drop'].forEach(name => {
+        dropzone.addEventListener(name, (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('drag-over');
+        });
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+        const files = e.dataTransfer.files;
+        if (files && files.length > 0) {
+            handleVerifyFile(files[0]);
+        }
+    });
+});
+
+// 파일 검증 API 호출 함수
+async function handleVerifyFile(file) {
+    if (!file || file.type !== 'image/png') {
+        alert('AhriEyes 공식 리포트(PNG) 파일만 검증할 수 있습니다.');
+        return;
+    }
+
+    const dropzone = document.getElementById('verify-dropzone');
+    const loader = document.getElementById('verify-loader');
+    const resultBox = document.getElementById('verify-result-box');
+
+    dropzone.style.display = 'none';
+    loader.style.display = 'block';
+    resultBox.style.display = 'none';
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+        const response = await fetch('/api/verify-report', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+
+        loader.style.display = 'none';
+        resultBox.style.display = 'block';
+
+        if (data.verified) {
+            resultBox.className = 'verify-result-box genuine';
+            resultBox.innerHTML = `
+                <div class="result-status-title">✔ GENUINE AUTHENTIC (공식 진품)</div>
+                <div><strong>발급자:</strong> ${data.author || '공식 시스템'}</div>
+                <div><strong>감정 엔진:</strong> ${data.software || 'AhriEyes Engine'}</div>
+                <div><strong>검증 결과:</strong> ${data.message}</div>
+                <button type="button" class="verify-reset-btn" onclick="resetVerifyState()">다른 리포트 검증</button>
+            `;
+        } else {
+            resultBox.className = 'verify-result-box tampered';
+            resultBox.innerHTML = `
+                <div class="result-status-title">✖ TAMPERED / FORGERY (위조 감지)</div>
+                <div><strong>상태 코드:</strong> ${data.status}</div>
+                <div><strong>경고:</strong> ${data.message}</div>
+                <button type="button" class="verify-reset-btn" onclick="resetVerifyState()">다시 시도</button>
+            `;
+        }
+    } catch (err) {
+        loader.style.display = 'none';
+        resultBox.style.display = 'block';
+        resultBox.className = 'verify-result-box tampered';
+        resultBox.innerHTML = `
+            <div class="result-status-title">서버 통신 오류</div>
+            <div>검증 요청에 실패했습니다: ${err.message}</div>
+            <button type="button" class="verify-reset-btn" onclick="resetVerifyState()">다시 시도</button>
+        `;
+    }
+}
 </script>
 </script>
+
+<!-- 보고서 다운로드 클라이언트 캡처 라이브러리 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<!-- 포렌식 리포트 진위 검증 모달 -->
+<div id="verify-modal-backdrop" class="verify-modal-backdrop" onclick="closeVerifyModal(event)">
+    <div class="verify-modal-card" onclick="event.stopPropagation()">
+        <div class="verify-modal-header">
+            <h3>FORENSIC INTEGRITY VERIFIER</h3>
+            <button type="button" class="verify-close-btn" onclick="closeVerifyModal()">&times;</button>
+        </div>
+        
+        <p class="verify-modal-desc">
+            발급된 AhriEyes 리포트(PNG)의 암호학적 위변조 및 픽셀 무결성을 대조 감정합니다.
+        </p>
+
+        <!-- 드롭존 영역 -->
+        <div id="verify-dropzone" class="verify-dropzone" onclick="document.getElementById('verify-file-input').click()">
+            <input type="file" id="verify-file-input" accept="image/png" style="display:none;" onchange="handleVerifyFile(this.files[0])">
+            <svg class="verify-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            <p class="dropzone-text"><strong>리포트 파일(PNG)</strong>을 끌어다 놓거나 클릭하여 선택</p>
+            <span class="dropzone-sub">0.5 vCPU 격리 서버 실시간 HMAC-SHA256 대조</span>
+        </div>
+
+        <!-- 검증 진행 로더 -->
+        <div id="verify-loader" class="verify-loader" style="display:none;">
+            <div class="cyber-spinner"></div>
+            <p>바이너리 청크 및 디지털 인감 대조 중...</p>
+        </div>
+
+        <!-- 검증 결과 박스 -->
+        <div id="verify-result-box" class="verify-result-box" style="display:none;"></div>
+    </div>
+</div>
 </body>
 </html>

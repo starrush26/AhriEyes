@@ -39,6 +39,7 @@ import onnxruntime as ort
 import urllib.request
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, File, UploadFile, status, HTTPException
+from pydantic import BaseModel
 from fastapi.responses import JSONResponse
 from slowapi import Limiter
 from slowapi.errors import RateLimitExceeded
@@ -46,9 +47,22 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.requests import Request
 from huggingface_hub import hf_hub_download
-import resource
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
+import cv2
+import hashlib
+import hmac
+import numpy as np
+import base64
+from dotenv import load_dotenv
+
+try:
+    import resource
+
+except ImportError: # 윈도우 환경 호환 처리 예외
+    resource = None
+
+load_dotenv()  # .env 파일에 적힌 환경변수를 자동으로 os.environ에 로드
 
 # 모델 저장 경로 설정
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -59,17 +73,15 @@ os.makedirs(MODEL_DIR, exist_ok = True)
 HF_REPO_ID = "kihyeonlee/ahrieyes-models"
 
 # 다운로드 대상 파일 목록
-MODEL_FILES = [
-    "convnext_int8.onnx",
-    "vit_int8.onnx",
-    "efficientnet.onnx",
-    "efficientnet.onnx.data",
-    "stacking_meta_logistic_model.pkl"
-]
+MODEL_FILES = {
+    "efficientnet": "efficientnet.onnx",
+    "convnext": "convnext.onnx",
+    "vit": "vit.onnx"
+}
 
 # 모델 파일 존재 여부 확인 및 다운로드 함수 정의
 def ensure_models_exist():
-    for filename in MODEL_FILES:
+    for filename in MODEL_FILES.values():
         file_path = os.path.join(MODEL_DIR, filename)
 
         # 모델 파일 존재 여부 확인
@@ -109,7 +121,7 @@ STATIC_DIR = os.path.join(BASE_DIR, "static")
 SOUND_DIR = os.path.join(BASE_DIR, "static", "sound")
 
 # FastAPI 앱 생성 시 lifespan 등록
-app = FastAPI(title="AhriEyes 딥페이크 탐지 시스템", lifespan=lifespan, version="1.2.0")
+app = FastAPI(title="AhriEyes 딥페이크 탐지 시스템", lifespan=lifespan, version="2.1.0")
 app.mount("/sound", StaticFiles(directory=SOUND_DIR), name="sound")
 
 # 정적 파일 및 템플릿 연결
@@ -121,6 +133,119 @@ templates = Jinja2Templates(directory=TEMPLATES_DIR)
 inference_executor = ThreadPoolExecutor(max_workers=1)
 # 비동기 대기열 락: 들어온 순서대로 차례차례 진입하도록 제어
 inference_lock = asyncio.Lock()
+
+AHRIEYES_SECRET_SALT = os.environ.get("AHRIEYES_SECRET_SALT", "DEV_LOCAL_SECRET_FALLBACK_2026")
+
+# 서명 요청용 Pydantic 모델
+class SignRequest(BaseModel):
+    raw_hash: str  # 프론트에서 전송한 캔버스 픽셀의 SHA-256 해시값
+
+# 서명 응답 모델
+class SignResponse(BaseModel):
+    signature: str
+    status: str
+    author: str
+    software: str
+
+# 검증 응답 모델
+class VerifyResponse(BaseModel):
+    verified: bool
+    status: str
+    author: str | None = None
+    software: str | None = None
+    message: str
+
+
+# --- 엔드포인트 1: 리포트 서명 발급 (Sign) ---
+@app.post("/api/sign-report", response_model=SignResponse)
+async def sign_report(payload: SignRequest):
+    if not payload.raw_hash or len(payload.raw_hash) != 64:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail="유효하지 않은 원시 해시 포맷입니다 (64자리 SHA-256 필요)."
+        )
+    
+    # 서버 메모리의 비밀 키와 클라이언트 픽셀 해시를 HMAC-SHA256으로 결합
+    official_signature = hmac.new(
+        AHRIEYES_SECRET_SALT.encode("utf-8"),
+        payload.raw_hash.encode("utf-8"),
+        hashlib.sha256
+    ).hexdigest()
+
+    return SignResponse(
+        signature=official_signature,
+        status="ORIGINAL_GENUINE",
+        author="Gi Hyeon Lee",
+        software="AhriEyes AI Forensic Engine v2.0"
+    )
+
+# --- 엔드포인트 2: 다운로드된 PNG 리포트 정품 검증 (Verify) ---
+@app.post("/api/verify-report", response_model=VerifyResponse)
+async def verify_report(file: UploadFile = File(...)):
+    # MIME 타입 체크
+    if file.content_type not in ["image/png", "application/octet-stream"]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail="PNG 이미지 파일만 검증 가능합니다."
+        )
+
+    try:
+        # 512MB RAM 보호를 위해 청크 단위로 파일 바이트 읽기
+        contents = await file.read()
+        
+        # PIL을 사용해 PNG 청크 파싱
+        with Image.open(io.BytesIO(contents)) as pil_img:
+            # 1. tEXt 메타데이터 청크 추출
+            metadata = pil_img.text
+            claimed_signature = metadata.get("Integrity-Hash")
+            claimed_software = metadata.get("Software")
+            claimed_author = metadata.get("Author")
+
+            # 메타데이터 누락 시 1차 위조 판정
+            if not claimed_signature:
+                return VerifyResponse(
+                    verified=False,
+                    status="MISSING_METADATA",
+                    message="AhriEyes 무결성 서명 청크가 발견되지 않았습니다. 변조되었거나 외부 생성 파일입니다."
+                )
+
+            # 2. 이미지 픽셀 원본 바이트 추출 후 SHA-256 연산
+            # 압축된 PNG 바이트가 아니라 '순수 픽셀 데이터(Raw Bytes)'를 해싱
+            pixel_bytes = pil_img.tobytes()
+            recalculated_raw_hash = hashlib.sha256(pixel_bytes).hexdigest()
+
+            # 3. 서버 비밀 키로 재생성한 정품 기대 서명
+            expected_signature = hmac.new(
+                AHRIEYES_SECRET_SALT.encode("utf-8"),
+                recalculated_raw_hash.encode("utf-8"),
+                hashlib.sha256
+            ).hexdigest()
+
+            # 4. 타이밍 공격 방지용 상수 시간 비교(compare_digest)
+            is_valid = hmac.compare_digest(claimed_signature, expected_signature)
+
+            if is_valid:
+                return VerifyResponse(
+                    verified=True,
+                    status="GENUINE_AUTHENTIC",
+                    author=claimed_author,
+                    software=claimed_software,
+                    message="공식 Ahrieyes 포렌식 진품 리포트입니다. 수치 및 픽셀의 위변조가 없습니다."
+                )
+            else:
+                return VerifyResponse(
+                    verified=False,
+                    status="TAMPERED_FRAUD",
+                    author=claimed_author,
+                    software=claimed_software,
+                    message="경고: 리포트의 픽셀 데이터나 판독 수치가 임의로 조작/위조되었습니다!"
+                )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+            detail=f"파일 판독 중 오류 발생: {str(e)}"
+        )
 
 def get_real_ip(request: Request) -> str:
     # 프록시(Cloudflare/Render)를 거쳐 전달된 실제 접속자 IP 확인
@@ -174,10 +299,52 @@ def preprocess_image(image: Image.Image) -> np.ndarray:
     # ONNX C++ 네이티브 입력용 연속 메모리 보장
     return np.ascontiguousarray(arr, dtype=np.float32)
 
+# 소프트멕스 함수 정의 (수치적 안정성 고려)
 def softmax(x: np.ndarray) -> np.ndarray:
     """수치적 안정성을 고려한 소프트맥스"""
     e_x = np.exp(x - np.max(x, axis=1, keepdims=True))
     return e_x / e_x.sum(axis=1, keepdims=True)
+
+def generate_forensic_heatmap(face_img_bgr, final_prob):
+    """
+    0.5 vCPU 맞춤형 초경량 포렌식 히트맵 생성기 (Zero-Backprop CAM)
+    - 합성 경계면의 고주파 잔차(High-Frequency Residual) 추출
+    - 모델의 최종 FAKE 확률(final_prob)에 비례하여 결함 강도 동적 맵핑
+    """
+    try:
+        # 1. 224x224 표준 규격으로 리사이즈
+        resized = cv2.resize(face_img_bgr, (224, 224))
+        gray = cv2.cvtColor(resized, cv2.COLOR_BGR2GRAY)
+
+        # 2. 라플라시안 필터를 통한 픽셀 블렌딩 왜곡 및 고주파 아티팩트 추출
+        laplacian = cv2.Laplacian(gray, cv2.CV_64F, ksize=3)
+        residual = np.abs(laplacian)
+
+        # 3. 노이즈 스무딩 및 결함 집중 영역 추출 (가우시안 블러)
+        blurred_residual = cv2.GaussianBlur(residual, (15, 15), 0)
+
+        # 4. 정규화 (0 ~ 255)
+        norm_residual = cv2.normalize(blurred_residual, None, alpha = 0, beta = 255, norm_type = cv2.NORM_MINMAX, dtype = cv2.CV_8U)
+
+        # 5. 모델의 FAKE 확률 가중치 반영 (가짜 확률이 높을수록 붉은 결함 강조)
+        weight = float(np.clip(final_prob, 0.1, 1.0))
+        scaled_residual = (norm_residual * weight).astype(np.uint8)
+
+        # 6. 포렌식 컬러맵 적용 (TURBO 또는 JET: 파랑=정상, 빨강/노랑=조작 의심 영역)
+        heatmap_colored = cv2.applyColorMap(scaled_residual, cv2.COLORMAP_TURBO)
+
+        # 7. 원본 얼굴과 히트맵을 6:4 비율로 반투명 블렌딩
+        overlay = cv2.addWeighted(resized, 0.55, heatmap_colored, 0.45, 0)
+
+        # 8. Web 전송용 경량 JPEG Base64 인코딩
+        _, buffer = cv2.imencode('.jpg', overlay, [int(cv2.IMWRITE_JPEG_QUALITY), 85])
+        heatmap_base64 = base64.b64encode(buffer).decode('utf-8')
+
+        return f"data:image/jpeg;base64,{heatmap_base64}"
+    
+    except Exception as e:
+        print(f"[Heatmap Generation Warning] {e}")
+        return None
 
 # Render 초소형 vCPU 맞춤 경량화 옵션
 opts = ort.SessionOptions()
@@ -201,7 +368,7 @@ def get_onnx_session(filename: str) -> ort.InferenceSession:
     sess_options.intra_op_num_threads = 1 # 단일 연산 내부 스레드 1개 강제
     sess_options.inter_op_num_threads = 1 # 연산 간 병렬 스레드 1개 강제
     sess_options.execution_mode = ort.ExecutionMode.ORT_SEQUENTIAL # 순서 실행 모드 강제
-    sess_options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL # 최적화 레벨 최대화
+    sess_options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL # 최적화 레벨 기본 단계
     sess_options.enable_cpu_mem_arena = False       # C++ 내부 메모리 풀 비활성화 (필요할 때만 쓰고 즉시 반환)
     sess_options.enable_mem_pattern = False         # 정적 메모리 할당 패턴 끄기 (피크치 절약)
 
@@ -253,7 +420,7 @@ def run_3tier_ensemble_pipeline(image_bytes: bytes) -> dict:
         gc.collect()
 
         # --- [2단계] ConvNeXt ONNX 추론 ---
-        session_conv = get_onnx_session("convnext_int8.onnx")
+        session_conv = get_onnx_session("convnext.onnx")
         input_name_conv = session_conv.get_inputs()[0].name
         out_conv = session_conv.run(None, {input_name_conv: input_data})[0]
         prob_conv = float(softmax(out_conv)[0][0])
@@ -262,7 +429,7 @@ def run_3tier_ensemble_pipeline(image_bytes: bytes) -> dict:
         gc.collect()
 
         # --- [3단계] ViT ONNX 추론 ---
-        session_vit = get_onnx_session("vit_int8.onnx") # ViT INT8 양자화 모델 사용
+        session_vit = get_onnx_session("vit.onnx") # ViT INT8 양자화 모델 사용
         input_name_vit = session_vit.get_inputs()[0].name
         out_vit = session_vit.run(None, {input_name_vit: input_data})[0]
         prob_vit = float(softmax(out_vit)[0][0])
@@ -295,6 +462,13 @@ def run_3tier_ensemble_pipeline(image_bytes: bytes) -> dict:
         except (ImportError, AttributeError):
             pass
 
+        # 원본 바이트에서 OpenCV BGR 이미지 복원
+        nparr = np.frombuffer(image_bytes, np.uint8)
+        img_bgr = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+
+        # 디코딩한 BGR 이미지를 기반으로 포렌식 히트맵 생성
+        heatmap_data = generate_forensic_heatmap(img_bgr, final_prob / 100.0)
+
         # 프론트엔드 규격에 완벽히 맞춘 반환 데이터
         return {
             "label": label,
@@ -304,7 +478,8 @@ def run_3tier_ensemble_pipeline(image_bytes: bytes) -> dict:
                 "EfficientNet": round(prob_eff * 100, 2),
                 "ConvNeXt": round(prob_conv * 100, 2),
                 "ViT": round(prob_vit * 100, 2)
-            }
+            },
+            "heatmap": heatmap_data
         }
 
     except Exception as e: # 예외처리

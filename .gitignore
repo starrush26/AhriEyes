@@ -7,3 +7,4 @@ models/*.data
 models/*.pkl
 models/*.pth
 models/.cache/
+.env
