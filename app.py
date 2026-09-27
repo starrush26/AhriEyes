@@ -73,33 +73,44 @@ os.makedirs(MODEL_DIR, exist_ok = True)
 HF_REPO_ID = "kihyeonlee/ahrieyes-models"
 
 # 다운로드 대상 파일 목록
+# 허깅페이스의 vit_int8.onnx를 다운받아 models/vit.onnx로 저장하게끔 매핑
 MODEL_FILES = {
     "efficientnet": "efficientnet.onnx",
     "efficientnet_data": "efficientnet.onnx.data",
     "convnext": "convnext.onnx",
     "convnext_data": "convnext.onnx.data",
-    "vit": "vit_int8.onnx",
-    "stacking_meta": "stacking_meta_logistic_model.pkl"
+    "vit": ("vit_int8.onnx", "vit.onnx")
 }
 
 # 모델 파일 존재 여부 확인 및 다운로드 함수 정의
 def ensure_models_exist():
-    for filename in MODEL_FILES.values():
-        file_path = os.path.join(MODEL_DIR, filename)
+    for file_info in MODEL_FILES.values():
+        # 튜플이면 (원격이름, 저장이름), 문자열이면 둘 다 동일하게 처리
+        if isinstance(file_info, tuple):
+            remote_name, local_name = file_info
+            
+        else:
+            remote_name = local_name = file_info
 
+        file_path = os.path.join(MODEL_DIR, local_name)
+        
         # 모델 파일 존재 여부 확인
         if not os.path.exists(file_path):
-            print(f"[Model Downloader] HF에서 {filename} 다운로드 중...")
+            print(f"[Model Downloader] HF에서 {remote_name} 다운로드 중... -> {local_name}")
             downloaded_cache_path = hf_hub_download(
                 repo_id = HF_REPO_ID,
-                filename = filename,
+                filename = remote_name,
                 local_dir = MODEL_DIR,
                 local_dir_use_symlinks = False
             )
-            print(f"[Model Downloader] {filename} 완료! -> {file_path}")
+            # 허깅페이스에서 받은 파일명이 로컬 목표 이름과 다르면 이름 변경
+            downloaded_path = os.path.join(MODEL_DIR, remote_name)
+            if downloaded_path != file_path and os.path.exists(downloaded_path):
+                os.replace(downloaded_path, file_path)
 
+            print(f"[Model Downloader] {local_name} 완료! -> {file_path}")
         else:
-            print(f"[Model Downloader] {filename} 로컬 캐시 확인 완료.")
+            print(f"[Model Downloader] {local_name} 로컬 캐시 확인 완료.")
 
 # 서버 부팅 시 모델 파일 존재 여부 확인 및 자동 다운로드
 ensure_models_exist()
