@@ -200,7 +200,7 @@ async def verify_report(file: UploadFile = File(...)):
     if file.content_type not in ["image/png", "application/octet-stream"]:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, 
-            detail="PNG 이미지 파일만 검증 가능합니다."
+            detail="PNG 이미지 파일만 검증 가능해."
         )
 
     try:
@@ -244,7 +244,7 @@ async def verify_report(file: UploadFile = File(...)):
                     status="GENUINE_AUTHENTIC",
                     author=claimed_author,
                     software=claimed_software,
-                    message="공식 Ahrieyes 포렌식 진품 리포트입니다. 수치 및 픽셀의 위변조가 없습니다."
+                    message="공식 Ahrieyes 포렌식 진품 리포트야. 티 없이 맑은 영혼이 느껴져."
                 )
             else:
                 return VerifyResponse(
@@ -252,7 +252,7 @@ async def verify_report(file: UploadFile = File(...)):
                     status="TAMPERED_FRAUD",
                     author=claimed_author,
                     software=claimed_software,
-                    message="경고: 리포트의 픽셀 데이터나 판독 수치가 임의로 조작/위조되었습니다!"
+                    message="이런.... 픽셀 데이터나 판독 수치가 변조되어 영혼의 인장이 깨져버렸어!"
                 )
 
     except Exception as e:
