@@ -1175,6 +1175,18 @@
         .verify-reset-btn:hover {
             background: rgba(255, 255, 255, 0.15);
         }
+        /* 드롭존 흔들림 애니메이션 */
+        @keyframes shake-dropzone {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+
+        .shake-active {
+            animation: shake-dropzone 0.4s ease-in-out forwards !important;
+            border-color: #ff4d4f !important;
+            box-shadow: 0 0 12px rgba(255, 77, 79, 0.4) !important;
+        }
     </style>
 </head>
 <body>
@@ -1305,7 +1317,7 @@
                 <ellipse cx="61" cy="68" rx="14" ry="16" fill="#e0f2fe" opacity="0.9" />
             </svg>
         </div>
-        <div class="brand-title">AhriEyes <span style="font-size:12px; color:#e03188;">v2.1.2</span></div>
+        <div class="brand-title">AhriEyes <span style="font-size:12px; color:#e03188;">v2.1.3</span></div>
         <div class="brand-sub">2단계 이기종 스태킹 앙상블 기반 딥페이크 탐지 사이트</div>
         <div class="brand-caution">※ [주의] 본 시스템은 타인의 얼굴을 도용한 안면 합성(Face-Swap) 탐지에 특화되어 있습니다. 텍스트 기반 순수 생성물(Midjourney 등 T2I)은 분석 대상에서 제외됩니다 ※</div>
         <div class="brand-caution" style="color: #ff4d4f; border-color: rgba(255, 77, 79, 0.4);">
@@ -1316,13 +1328,18 @@
         </p>
     </div>
     <!-- [업로더] 모바일 터치 및 PC 드래그앤드롭 수신 박스 -->
-    <div class="dropzone" id="dropzone">
-        <input type="file" id="fileInput" class="native-file-input" accept="image/*,.heic,.heif" onchange="handleFileChange(this)">
+    <div class = "dropzone" id = "dropzone" onclick = "document.getElementById('fileInput').click();">
+        <!-- 단 하나의 input만 유지하고 accept로 확장자 제한 + onchange로 핸들러 직접 연결 -->
+        <input type="file" id="fileInput" class="native-file-input" 
+            accept = ".jpg, .jpeg, .png, .webp, image/jpeg, image/png, image/webp, .heic, .heif" 
+            onchange = "handleFileChange(this)"
+            style = "display: none;">
+            
         <!-- [판독 트리거] 백엔드 앙상블 분석 실행 버튼 -->
         <div class="dropzone-content" id="dropzoneContent">
             <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
             <div class="dropzone-text">
-                여기를 클릭하여 판독할 사진 업로드<br>
+                여기를 클릭하여 판독할 사진 업로드 또는 드래그앤드롭<br>
                 <span style="font-size:11px; color:#64748b;">(갤러리 / 파일 / 카메라)</span>
             </div>
             <div class="loading-text" id="loadingText">모바일 이미지 최적화 중...</div>
@@ -1615,12 +1632,60 @@
     }
     }
 
-    async function handleFileChange(input) {
-        if (!input.files || !input.files[0]) return;
-        let file = input.files[0];
+    // 파일 검증 메인 함수
+    function validateUploadedFile(file) {
+        if (!file) return false;
+        // 허용된 이미지 확장자 목록
+        const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'heic', 'heif'];
+        // 파일 확장자 및 MIME 타입 추출
+        const ext = file.name.split('.').pop().toLowerCase();
+        // MIME 타입은 브라우저에서 제공하는 파일 객체의 type 속성 사용
+        const mime = file.type.toLowerCase();
 
-        loadingText.style.display = 'block';
-        scanBtn.disabled = true;
+        // 1. 정상 이미지 통과
+        if (allowedExtensions.includes(ext) || mime.startsWith('image/')) {
+            return true;
+        }
+
+        // 2. 비정상 파일 유형별 아리 말풍선 분기 처리
+        // 1. 오디오/음악 파일 (mp3, wav, flac, m4a 등)
+        if (['mp3', 'wav', 'flac', 'm4a', 'aac', 'ogg'].includes(ext) || mime.startsWith('audio/')) {
+            setAhriDialogue("어머, 여우 귀에 노래를 들려주려고? 나는 얼굴을 보러 왔는데~ 후훗.");
+        }
+        // 2. 문서 및 텍스트 파일 (hwp, docx, pdf, txt, xlsx, pptx 등)
+        else if (['hwp', 'hwpx', 'doc', 'docx', 'pdf', 'txt', 'ppt', 'pptx', 'xls', 'xlsx'].includes(ext) || 
+                mime.includes('pdf') || mime.includes('document') || mime.includes('text/')) {
+            setAhriDialogue("흐음... 글자만 잔뜩 보이고 얼굴이 안 보이네~ 사진으로 보여줘.");
+        }
+        // 3. 비디오/영상 파일 (mp4, avi, mkv, mov 등)
+        else if (['mp4', 'avi', 'mkv', 'mov', 'wmv'].includes(ext) || mime.startsWith('video/')) {
+            setAhriDialogue("움직이는 영상은 아직 어지러워... 한 장의 사진(이미지)으로 담아와 주겠니?");
+        }
+        // 4. 압축 및 실행/코드 파일 (zip, rar, exe, py, js 등)
+        else if (['zip', 'rar', '7z', 'bat', 'tar', 'exe', 'sh', 'py', 'js', 'html'].includes(ext)) {
+            setAhriDialogue("이런 수상한 보따리는 열어볼 수 없어. 정체가 드러난 얼굴 사진을 가져와줘.");
+        }
+        // 5. 그 외 알 수 없는 포맷
+        else {
+            setAhriDialogue("후훗, 이건 사람의 얼굴이 아니잖아? 사진을 가져오렴~");
+        }
+
+        return false; // 차단
+    }
+
+    // 파일 검증 함수
+    async function handleFileChange(input) {
+        if (!input.files || !input.files[0]) return; // 파일이 없으면 종료
+        let file = input.files[0]; // 파일 객체 가져오기
+
+        // 비(非)이미지 파일 검증 및 아리 말풍선 출력
+        if (!validateUploadedFile(file)) {
+            input.value = ''; // 파일 선택 초기화
+            return; // 로딩 표시 및 HEIC/미리보기 파이프라인 진입 차단
+        }
+
+        loadingText.style.display = 'block'; // 로딩 텍스트 표시
+        scanBtn.disabled = true; // 판독 시작 버튼 비활성화
 
         try {
             // 1. 아이폰의 HEIC / HEIF 포맷 감지 시 변환
@@ -2144,11 +2209,14 @@ function closeVerifyModal(e) {
     }
 }
 
-function resetVerifyState() {
-    const loader = document.getElementById('verify-loader');
-    const resultBox = document.getElementById('verify-result-box');
-    const dropzone = document.getElementById('verify-dropzone');
-    const fileInput = document.getElementById('verify-file-input');
+// 모달 초기화 함수
+function resetVerifyState() { 
+    const vDropzone = document.getElementById('verify-dropzone');
+    if (vDropzone) { // 드롭존 초기화
+        vDropzone.classList.remove('shake-active'); // 진동 잔상 제거
+        const textEl = vDropzone.querySelector('.dropzone-text');
+        if (textEl) textEl.innerHTML = `<strong>리포트 파일(PNG)</strong>을 끌어다 놓거나 클릭하여 선택`;
+    }
 
     if (loader) loader.style.display = 'none';
     if (resultBox) resultBox.style.display = 'none';
@@ -2183,10 +2251,39 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+// 원본 문구 보관 변수 
+const defaultVerifyHTML = `<strong>리포트 파일(PNG)</strong>을 끌어다 놓거나 클릭하여 선택`;
+
 // 파일 검증 API 호출 함수
 async function handleVerifyFile(file) {
-    if (!file || file.type !== 'image/png') {
-        alert('AhriEyes 공식 리포트(PNG) 파일만 검증할 수 있습니다.');
+    if (!file) return;
+
+    const ext = file.name.split('.').pop().toLowerCase();
+    const isPng = ext === 'png' || file.type === 'image/png';
+
+    if (!isPng) {
+        const dropzoneEl = document.getElementById('verify-dropzone');
+        const dropText = dropzoneEl ? dropzoneEl.querySelector('.dropzone-text') : null;
+
+        if (dropzoneEl && dropText) {
+            // 1. 빨간색 경고 문구로 변경
+            dropText.innerHTML = `<span style="color: #ff4d4f; font-weight: bold; font-size: 14px;">⚠️🦊 이건 내가 발급한 공인 리포트(PNG)이 아니야. 리포트 파일을 업로드해줘.</span>`;
+
+            // 2. 진동 시작
+            dropzoneEl.classList.remove('shake-active');
+            void dropzoneEl.offsetWidth; // 리플로우
+            dropzoneEl.classList.add('shake-active');
+
+            // 3. 진동 애니메이션은 0.4초 후 즉시 제거 (닫았다 열었을 때 다시 진동하는 현상 방지)
+            setTimeout(() => {
+                dropzoneEl.classList.remove('shake-active');
+            }, 400);
+
+            // 4. 문구는 3초 후 원상 복구
+            setTimeout(() => {
+                dropText.innerHTML = defaultVerifyHTML;
+            }, 3000);
+        }
         return;
     }
 
@@ -2202,18 +2299,18 @@ async function handleVerifyFile(file) {
     formData.append('file', file);
 
     try {
-        const response = await fetch('/api/verify-report', {
-            method: 'POST',
-            body: formData
+        const response = await fetch('/api/verify-report', { // 백엔드 검증 API 엔드포인트
+            method: 'POST', // POST 요청
+            body: formData // FormData로 파일 전송
         });
         const data = await response.json();
 
         loader.style.display = 'none';
         resultBox.style.display = 'block';
 
-        if (data.verified) {
-            resultBox.className = 'verify-result-box genuine';
-            resultBox.innerHTML = `
+        if (data.verified) { // 진품 인증 성공
+            resultBox.className = 'verify-result-box genuine'; // 진품 클래스 적용
+            resultBox.innerHTML = ` 
                 <div class="result-status-title">✔ GENUINE AUTHENTIC (공식 진품)</div>
                 <div><strong>발급자:</strong> ${data.author || '공식 시스템'}</div>
                 <div><strong>감정 엔진:</strong> ${data.software || 'AhriEyes Engine'}</div>
