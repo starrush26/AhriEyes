@@ -2218,9 +2218,21 @@ function resetVerifyState() {
         if (textEl) textEl.innerHTML = `<strong>리포트 파일(PNG)</strong>을 끌어다 놓거나 클릭하여 선택`;
     }
 
+    // loader, resultBox, dropzone, fileInput을 안전하게 가져와서 처리
+    const loader = document.getElementById('verify-loader') || document.querySelector('.verify-loader');
     if (loader) loader.style.display = 'none';
-    if (resultBox) resultBox.style.display = 'none';
-    if (dropzone) dropzone.style.display = 'block';
+
+    // 결과 박스 초기화
+    const resultBox = document.querySelector('.verify-result-box') || document.getElementById('verify-result') || document.querySelector('.verify-result');
+    if (resultBox) {
+        resultBox.style.display = 'none';
+        resultBox.innerHTML = '';
+    }
+
+    if (vDropzone) vDropzone.style.display = 'block'; // 드롭존 다시 표시
+
+    // 파일 입력 초기화
+    const fileInput = document.getElementById('verify-file-input') || document.querySelector('input[type="file"]');
     if (fileInput) fileInput.value = '';
 }
 
