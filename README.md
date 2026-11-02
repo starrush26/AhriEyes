@@ -1,3 +1,6 @@
+### 중요 : 용량 제한에 의해 웹의 모델 3개 + 로지스틱 회귀 원본은 ###
+### https://huggingface.co/kihyeonlee/ahrieyes-models 에 있습니다 ###
+
 # 🦊 AhriEyes: Real-Time Deepfake Detection System
 
 > **3종 이종 스태킹 앙상블 기반 초경량 딥페이크 탐지 웹 서비스**  
