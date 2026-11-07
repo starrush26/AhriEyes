@@ -1,4 +1,4 @@
-# cd "C:\Users\kihyu\OneDrive\바탕 화면\Project_AhriEyes"
+# cd "C:\Project_AhriEyes"
 # .\ahrieyesvenv\Scripts\Activate.ps1
 # uvicorn app:app --reload
 # python tunnel.py
@@ -55,6 +55,7 @@ import hmac
 import numpy as np
 import base64
 from dotenv import load_dotenv
+from face_filter import has_human_face  # 분리해 둔 모듈 임포트
 
 try:
     import resource
@@ -405,9 +406,18 @@ async def index(request: Request):
 
 async def predict(request: Request, file: UploadFile = File(...)):
     """3대 앙상블 ONNX 추론 및 메타 로지스틱 회귀 판독 파이프라인"""
-    image_bytes = await file.read()
-    loop = asyncio.get_running_loop()
+    image_bytes = await file.read() # 업로드된 이미지 바이트 읽기
 
+    if not has_human_face(image_bytes):
+        raise HTTPException(
+            status_code = status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail = "흐음... 사람 얼굴을 찾을 수 없어. 1인 정면 얼굴 사진을 올려줘!"
+        )
+
+    # 3대 앙상블 ONNX 추론 및 메타 로지스틱 회귀 판독 파이프라인 실행
+    loop = asyncio.get_running_loop() # 현재 이벤트 루프 가져오기
+
+    # 락 획득 후 순차적으로 추론 실행 
     async with inference_lock:
         result = await loop.run_in_executor(
             inference_executor,

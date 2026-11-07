@@ -1317,7 +1317,7 @@
                 <ellipse cx="61" cy="68" rx="14" ry="16" fill="#e0f2fe" opacity="0.9" />
             </svg>
         </div>
-        <div class="brand-title">AhriEyes <span style="font-size:12px; color:#e03188;">v2.1.4</span></div>
+        <div class="brand-title">AhriEyes <span style="font-size:12px; color:#e03188;">v2.2.0</span></div>
         <div class="brand-sub">2단계 이기종 스태킹 앙상블 기반 딥페이크 탐지 사이트</div>
         <div class="brand-caution">※ [주의] 본 시스템은 타인의 얼굴을 도용한 안면 합성(Face-Swap) 탐지에 특화되어 있습니다. 텍스트 기반 순수 생성물(Midjourney 등 T2I)은 분석 대상에서 제외됩니다 ※</div>
         <div class="brand-caution" style="color: #ff4d4f; border-color: rgba(255, 77, 79, 0.4);">
@@ -1620,16 +1620,114 @@
         }
     }
 
-    // 말풍선 대사 변경 함수
-    function setAhriDialogue(text) {
-    const bubbleText = document.getElementById('ahri-text');
-    if (bubbleText) {
-        bubbleText.style.opacity = 0;
+   // 얼굴 미검출 시 타코미터 및 수치를 '??.? %'로 전환하고 바늘을 -110도로 강제 파킹하는 함수
+    function showUnknownGauges() {
+        // 1. 결과 패널 노출
+        const resultPanel = document.getElementById('resultPanel');
+        if (resultPanel) {
+            resultPanel.style.display = 'block';
+            resultPanel.classList.remove('hidden', 'd-none', 'hide');
+            resultPanel.classList.add('active', 'show');
+            resultPanel.style.opacity = '1';
+            resultPanel.style.visibility = 'visible';
+        }
+
+        // 2. 수치 텍스트 '??.? %' 일괄 강제 변경
+        const targetIds = [
+            'mainPercent', 'mainScore', 'totalPercent', 'ensembleScore', 'finalScore', 'mainNeedlePercent',
+            'efficientnetPercent', 'convnextPercent', 'vitPercent',
+            'efficientnetScore', 'convnextScore', 'vitScore'
+        ];
+        targetIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.innerText = '??.? %';
+        });
+
+        if (resultPanel) {
+            resultPanel.querySelectorAll('span, div, p, text, h1, h2, h3, h4').forEach(el => {
+                const txt = el.innerText?.trim() || el.textContent?.trim();
+                if (txt === '00.0%' || txt === '0.0%' || txt === '0%') {
+                    el.innerText = '??.? %';
+                    el.textContent = '??.? %';
+                }
+            });
+        }
+
+        // 3. 위험도 뱃지 변경
+        const badge = document.getElementById('stageBadge');
+        if (badge) {
+            badge.innerText = 'STAGE ? (미검출 / UNDETECTED)';
+            badge.style.background = 'rgba(255, 107, 107, 0.15)';
+            badge.style.color = '#ff6b6b';
+            badge.style.border = '1px solid #ff6b6b';
+        }
+
+        // 4. 메인 바늘 및 서브 바늘 -110도 강제 파킹
+        const forceParkNeedles = () => {
+            // 메인 바늘 그룹 (#mainNeedleGroup)
+            const mainGroup = document.getElementById('mainNeedleGroup');
+            if (mainGroup) {
+                mainGroup.style.transition = 'transform 0.4s ease-out, opacity 0.3s ease';
+                mainGroup.style.transform = 'rotate(-110deg)';
+                mainGroup.style.opacity = '0.35';
+            }
+
+            // 서브 게이지 미니 바늘 그룹들 (.mini-needle-group)
+            document.querySelectorAll('.mini-needle-group').forEach(el => {
+                el.style.transition = 'transform 0.4s ease-out, opacity 0.3s ease';
+                el.style.transform = 'rotate(-110deg)';
+                el.style.opacity = '0.35';
+            });
+
+            // 중앙 디지털 수치 '??.? %'
+            const riskEl = document.getElementById('riskPercent');
+            if (riskEl) riskEl.innerText = '??.? %';
+        };
+
+        forceParkNeedles();
+        setTimeout(forceParkNeedles, 60);
+        setTimeout(forceParkNeedles, 160);
+
+        // 5. 보고서 다운로드 버튼 비활성화 (회색 처리 및 클릭 방지)
+        const reportBtn = document.getElementById("download-report-btn");
+        if (reportBtn) {
+            reportBtn.disabled = true;
+            reportBtn.classList.remove("report-btn-active"); // CSS 클래스 제거
+            reportBtn.classList.add("report-btn-disabled"); // CSS 클래스 추가
+            reportBtn.style.opacity = '0.35'; // 시각적 회색 처리
+            reportBtn.style.pointerEvents = 'none'; // 클릭 방지
+            reportBtn.style.cursor = 'not-allowed'; // 커서를 금지 모양으로 바꾸기
+        }
+
+        // 6. 스크롤 이동
         setTimeout(() => {
-        bubbleText.innerText = text;
-        bubbleText.style.opacity = 1;
+            if (typeof scrollCardToBottom === 'function') {
+                scrollCardToBottom();
+            } else if (resultPanel) {
+                resultPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
         }, 150);
     }
+
+    // 말풍선 대사 변경 함수 (타이머 중복 방지)
+    let ahriDialogueTimer = null;
+
+    function setAhriDialogue(text) {
+        const bubbleText = document.getElementById('ahri-text');
+        if (!bubbleText) return;
+
+        // 예약되어 있던 이전 타이머 즉시 취소
+        if (ahriDialogueTimer) {
+            clearTimeout(ahriDialogueTimer);
+            ahriDialogueTimer = null;
+        }
+
+        bubbleText.style.opacity = '0';
+        setTimeout(() => {
+            bubbleText.innerText = text;
+            bubbleText.textContent = text;
+            bubbleText.style.opacity = '1';
+        }, 150);
     }
 
     // 파일 검증 메인 함수
@@ -1669,6 +1767,9 @@
         else {
             setAhriDialogue("후훗, 이건 사람의 얼굴이 아니잖아? 사진을 가져오렴~");
         }
+
+        // 프론트엔드이므로 console.error로 F12 개발자 도구 콘솔에 415 에러 규격 로그 출력
+        console.error(`[415 Unsupported Media Type] 사진 파일만 입력 가능합니다. ${file.name} (MIME: ${mime || 'unknown'})`);
 
         return false; // 차단
     }
@@ -1762,13 +1863,61 @@
         formData.append('file', finalUploadBlob, "upload.jpg");
 
         try {
-            // 판독 시작: 스캔 루프음 재생
-            SoundManager.startScanning();
-            /*app.py로부터 받아올 예측값*/
+            // 판독 시작: 스캔 루프음 재생 (안전 호출)
+            const sm = window.SoundManager || window.soundManager;
+            if (sm && sm.startScanning) {
+                sm.startScanning();
+            }
+
+            // app.py로부터 받아올 예측값
             const res = await fetch('/predict', {
                 method: 'POST',
                 body: formData
             });
+            
+            // 사람 얼굴을 감지하지 못한 경우
+            if (!res.ok) {
+                let errMsg = '흐음... 사람 얼굴을 찾을 수 없어. 1인 정면 얼굴 사진을 올려줘!';
+                try {
+                    const errData = await res.json();
+                    if (typeof errData.detail === 'string') {
+                        errMsg = errData.detail;
+                    } else if (Array.isArray(errData.detail) && errData.detail[0]?.msg) {
+                        errMsg = errData.detail[0].msg;
+                    }
+                } catch (e) {}
+
+                // 1. 기존 아리 타이머 취소 및 시간차 강제 고정
+                if (typeof ahriDialogueTimer !== 'undefined' && ahriDialogueTimer) {
+                    clearTimeout(ahriDialogueTimer);
+                    ahriDialogueTimer = null;
+                }
+                // 2. 말풍선 대사 강제 고정
+                const setFixedDialogue = () => {
+                    const ahriText = document.getElementById('ahri-text');
+                    if (ahriText) {
+                        ahriText.innerText = errMsg;
+                        ahriText.textContent = errMsg;
+                        ahriText.style.opacity = '1';
+                    }
+                };
+                setFixedDialogue();
+                setTimeout(setFixedDialogue, 200); // 다른 곳에서 날아오는 대사 덮어쓰기 방어
+
+                // 3. 타코미터 '??.? %' 및 -110도 파킹 
+                showUnknownGauges();
+
+                // 사운드 정지
+                const sm = window.SoundManager || window.soundManager;
+                if (sm && sm.stopScanning) {
+                    sm.stopScanning();
+                }
+
+                scanBtn.disabled = false;
+                scanBtn.innerText = '딥페이크 여부 판독시작';
+                return; // 종료
+            }
+
             const data = await res.json();
             console.log("서버 원본 응답:", data);
 
@@ -1784,7 +1933,16 @@
 
         } catch (err) {
             console.error("판독 통신 에러:", err);
+
+            // 에러 발생 시 사운드 즉시 강제 정지
+            const sm = window.SoundManager || window.soundManager;
+            if (sm && sm.stopScanning) {
+                sm.stopScanning();
+            }
+
+            // 통신 오류 팝업 출력
             alert('판독 통신 오류가 발생했습니다.');
+
         } finally {
             /* 판독 시작 버튼 설정*/
             scanBtn.disabled = false;
@@ -1814,6 +1972,7 @@
         
         const needle = document.getElementById(needleId);
         if (needle) {
+            needle.style.opacity = '1'; /* 정상 판독 시 투명도 100% 복구 */
             needle.style.transition = 'none'; /*애니메이션 끄기*/
             needle.style.transform = 'rotate(-90deg)'; /*처음 위치로 이동*/
 
@@ -1957,9 +2116,12 @@
         const reportBtn = document.getElementById("download-report-btn");
 
         if (reportBtn) { // 버튼 활성화
-            reportBtn.disabled = false; // 버튼 비활성화 해제
-            reportBtn.classList.remove("report-btn-disabled"); // 비활성화 클래스 제거
-            reportBtn.classList.add("report-btn-active"); // 활성화 클래스 추가
+        reportBtn.disabled = false; 
+        reportBtn.classList.remove("report-btn-disabled"); 
+        reportBtn.classList.add("report-btn-active");
+        reportBtn.style.opacity = '1'; 
+        reportBtn.style.pointerEvents = 'auto';
+        reportBtn.style.cursor = 'pointer'; // 커서 활성화
         }
     }
         // --- 포렌식 리포트 클라이언트 캡처 및 다운로드 ---
