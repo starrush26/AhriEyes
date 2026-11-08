@@ -1317,7 +1317,7 @@
                 <ellipse cx="61" cy="68" rx="14" ry="16" fill="#e0f2fe" opacity="0.9" />
             </svg>
         </div>
-        <div class="brand-title">AhriEyes <span style="font-size:12px; color:#e03188;">v2.2.1</span></div>
+        <div class="brand-title">AhriEyes <span style="font-size:12px; color:#e03188;">v2.2.2</span></div>
         <div class="brand-sub">2단계 이기종 스태킹 앙상블 기반 딥페이크 탐지 사이트</div>
         <div class="brand-caution">※ [주의] 본 시스템은 타인의 얼굴을 도용한 안면 합성(Face-Swap) 탐지에 특화되어 있습니다. 텍스트 기반 순수 생성물(Midjourney 등 T2I)은 분석 대상에서 제외됩니다 ※</div>
         <div class="brand-caution" style="color: #ff4d4f; border-color: rgba(255, 77, 79, 0.4);">
@@ -1640,11 +1640,18 @@
             resultPanel.style.visibility = 'visible';
         }
 
+        // 1-1. 메인 및 서브 타코미터 4종 호(Arc) 점등 잔상 일괄 소등 
+        document.querySelectorAll('.gauge-arc').forEach(arc => {
+            arc.style.opacity = '';
+            arc.classList.remove('active', 'lit', 'on', 'highlight');
+        });
+
         // 2. 수치 텍스트 '??.? %' 일괄 강제 변경
         const targetIds = [
             'mainPercent', 'mainScore', 'totalPercent', 'ensembleScore', 'finalScore', 'mainNeedlePercent',
             'efficientnetPercent', 'convnextPercent', 'vitPercent',
-            'efficientnetScore', 'convnextScore', 'vitScore'
+            'efficientnetScore', 'convnextScore', 'vitScore',
+            'probEff', 'probConv', 'probVit'
         ];
         targetIds.forEach(id => {
             const el = document.getElementById(id);
@@ -1683,9 +1690,17 @@
             // 서브 게이지 미니 바늘 그룹들 (.mini-needle-group)
             document.querySelectorAll('.mini-needle-group').forEach(el => {
                 el.style.transition = 'transform 0.4s ease-out, opacity 0.3s ease';
+                el.style.transformOrigin = '75px 68px'; // <-- [추가] 회전 중심점 고정
                 el.style.transform = 'rotate(-110deg)';
+                el.setAttribute('transform', 'rotate(-110, 75, 68)'); // <-- [추가] SVG 직접 회전 보장
                 el.style.opacity = '0.35';
             });
+
+            // 하단 XAI 컬러 범례표 숨김 처리
+            const legendContainer = document.querySelector('.xai-legend-container');
+            if (legendContainer) {
+                legendContainer.style.display = 'none';
+            }
 
             // 중앙 디지털 수치 '??.? %'
             const riskEl = document.getElementById('riskPercent');
@@ -1856,6 +1871,13 @@
     }
 
     async function runAnalysis() {
+
+        // 새 판독 시작 시 타코미터 아크 불빛 일괄 소등
+        document.querySelectorAll('.gauge-arc').forEach(arc => {
+            arc.style.opacity = '';
+            arc.classList.remove('active', 'lit', 'on', 'highlight');
+        });
+
         let finalScore = 0; // 판독 완료 후 점수를 담아둘 변수
 
         if (!finalUploadBlob) return;
