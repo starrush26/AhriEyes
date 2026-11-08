@@ -2131,6 +2131,12 @@
             badge.innerText = stageText;
             
         }
+        // 하단 XAI 컬러 범례표 표시 (422 예외 상태 결과 다음 정상 판독 시에도 복귀)
+        const legendContainer = document.querySelector('.xai-legend-container');
+        if (legendContainer) {
+            legendContainer.style.display = ''; // 기본 CSS로 복구
+            legendContainer.style.opacity = '1'; // 불투명도 100%로 복구
+        }
 
         // 2하단 3개 서브 모델 바늘 회전
         updateGauge('eff_', 'effNeedle', effPercent);
