@@ -24,15 +24,16 @@
 * **Inference Engine**: ONNX Runtime 기반 INT8 동적 양자화 기반 최적화 서빙(EfficientNet 제외), FP16 변환
 
 ### Infrastructure & Backend
-* **Language**: Python 3.10.11
-* **Backend**: Flask / PyTorch / ONNX Runtime
+* **Language**: Python 3.10.11 / JavaScript
+* **Backend**:  PyTorch / ONNX Runtime
+* **API**: FastAPI
 * **Deployment**: Render (Free Tier: 0.5 vCPU, 512MB RAM, CPU-only / No GPU)
 
 ---
-
+## 
 ## 🚀 Key Achievements
 * **극단적 리소스 최적화**: OOM(Out of Memory) 방지를 위해 가중치 최적화 및 램 점유 최소화 파이프라인 구축, 각 모델 로드 종료 후 판독 결과만 뽑고 del과 gc.collect()로 메모리 리셋
-* **인터랙티브 UI**: 판독 진행 중, 판독 완료 후 위변조 확률에 따른 5단계 동적 게이지 및 테마 사운드 효과 제공
+* **인터랙티브 UI**: 판독 진행 중, 판독 완료 후 위변조 확률에 따른 5단계 동적 게이지 및 테마 사운드 효과 제공, 사람이 아닌 사진 입력 시 특수 대사가 나오고, '??.?%' 마스킹 및 바늘을 게이지 바깥으로 이동, 범례표와 리포트 다운로드 기능을 비활성화 하여 UI / UX 편의성 확보 
 
 ---
 
