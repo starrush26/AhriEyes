@@ -1622,6 +1622,14 @@
 
    // 얼굴 미검출 시 타코미터 및 수치를 '??.? %'로 전환하고 바늘을 -110도로 강제 파킹하는 함수
     function showUnknownGauges() {
+        // 0. 이전 XAI 히트맵 영역 숨김 및 잔상 메모리 초기화
+        const forensicContainer = document.getElementById('forensic-compare-container');
+        const origImg = document.getElementById('forensic-orig-img');
+        const heatImg = document.getElementById('forensic-heat-img');
+        if (forensicContainer) forensicContainer.style.display = 'none';
+        if (origImg) origImg.src = '';
+        if (heatImg) heatImg.src = '';
+
         // 1. 결과 패널 노출
         const resultPanel = document.getElementById('resultPanel');
         if (resultPanel) {
@@ -1851,11 +1859,20 @@
         let finalScore = 0; // 판독 완료 후 점수를 담아둘 변수
 
         if (!finalUploadBlob) return;
-        /*버튼 문구를 판독중으로 바꾸기*/
+
+        // 새 판독 시작 시 이전 XAI 히트맵 영역 즉시 숨김 및 잔상 비우기
+        const forensicContainer = document.getElementById('forensic-compare-container');
+        const origImg = document.getElementById('forensic-orig-img');
+        const heatImg = document.getElementById('forensic-heat-img');
+        if (forensicContainer) forensicContainer.style.display = 'none';
+        if (origImg) origImg.src = '';
+        if (heatImg) heatImg.src = '';
+
+        // 버튼 문구를 판독중으로 바꾸기
         scanBtn.disabled = true;
         scanBtn.innerText = '딥페이크 여부 판독중...';
 
-        /*아리의 말풍선 대사를 판독중으로 바꾸기*/
+        // 아리의 말풍선 대사를 판독중으로 바꾸기
         setAhriDialogue('어디보자... 이 사진은 진짜일까, 가짜일까?');
 
 
