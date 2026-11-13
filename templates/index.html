@@ -1279,6 +1279,8 @@
 
 <!-- [컨테이너] 대시보드 전체 유리 질감 프레임 -->
 <div class="container">
+    <!-- 다국어 번역 위젯 버튼 불러오기(모바일에서 우상단에 자동 위치) -->
+    <div id="ahrieyes-lang-bar" style="display: flex; justify-content: flex-end; margin-bottom: 12px;"></div>
     <!-- [헤더] 로고 및 프로젝트 타이틀 -->
     <div class="header">
         <div class="foxfire-container">
@@ -1317,14 +1319,15 @@
                 <ellipse cx="61" cy="68" rx="14" ry="16" fill="#e0f2fe" opacity="0.9" />
             </svg>
         </div>
-        <div class="brand-title">AhriEyes <span style="font-size:12px; color:#e03188;">v2.2.3</span></div>
+        <!-- <span class="기존 클래스 notranslate">번역 금지할 문장</span> -->
+        <div class="brand-title notranslate">AhriEyes <span style="font-size:12px; color:#e03188;">v2.3.0</span></div>
         <div class="brand-sub">2단계 이기종 스태킹 앙상블 기반 딥페이크 탐지 사이트</div>
-        <div class="brand-caution">※ [주의] 본 시스템은 타인의 얼굴을 도용한 안면 합성(Face-Swap) 탐지에 특화되어 있습니다. 텍스트 기반 순수 생성물(Midjourney 등 T2I)은 분석 대상에서 제외됩니다 ※</div>
+        <div class="brand-caution">※ [주의] 본 시스템은 타인의 얼굴을 도용한 안면 합성(<span class="notranslate">Face-Swap</span>) 탐지에 특화되어 있습니다. 텍스트 기반 순수 생성물(<span class="notranslate"> Midjourney </span> 등 <span class="notranslate"> T2I </span>)은 분석 대상에서 제외됩니다 ※</div>
         <div class="brand-caution" style="color: #ff4d4f; border-color: rgba(255, 77, 79, 0.4);">
             ※ [경고] 1인 단독 정면 안면(눈·코·입 전체 노출) 전용 시스템입니다. 다중 인물 또는 이목구비 중 일부가 잘린 사진은 특징 추출 왜곡으로 판독 결과가 유효하지 않습니다 ※
         </div>
         <p style="font-size: 0.78rem; color: #94a3b8; margin-top: 4px; text-align: center;">
-            ⚡🦊 렌더러 무료 인프라 환경(0.1 vCPU. NO GPU, 512MB 램)에서 구동 중으로, 접속자가 몰리는 경우 모델 앙상블 정밀 연산에 약 15~20초가 소요될 수 있습니다.
+            ⚡🦊 렌더러 무료 인프라 환경(<span class="notranslate">0.1 vCPU, NO GPU, 512MB </span> 램)에서 구동 중이므로, 접속자가 몰리는 경우 모델 앙상블 정밀 연산에 약 15~20초가 소요될 수 있습니다.
         </p>
     </div>
     <!-- [업로더] 모바일 터치 및 PC 드래그앤드롭 수신 박스 -->
@@ -1476,7 +1479,7 @@
                     <!-- 깃허브 로고 -->
                     <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
                 </svg>
-                <span>[KOR] 이기현(Gi Hyeon Lee)</span>
+                [KOR] <span class="sync-dev-name notranslate">이기현</span> <span class="dev-en-paren notranslate">(Gi Hyeon Lee)</span>
             </a>
             <a href="https://www.kaggle.com/amongasu" target="_blank" rel="noopener noreferrer" class="credit-link">
                 <svg class="credit-icon" viewBox="0 0 24 24" fill="currentColor">
@@ -1580,7 +1583,7 @@
         </div>
 
         <p style="margin-top: 12px; font-size: 0.8rem; color: #888; letter-spacing: 0.3px;">
-            &copy; 2026 <strong>Lee gi Hyeon</strong>. All rights reserved. 
+            <span class="notranslate">&copy; 2026 <strong class="sync-dev-name">이기현</strong>. All rights reserved.</span>
             (<a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener noreferrer" class="footer-license-link">Licensed under AGPL-3.0</a>)
         </p>
         <p style="margin-top: 8px; font-size: 0.72rem; color: #FFFFFF; line-height: 1.4; max-width: 800px; margin-left: auto; margin-right: auto;">
@@ -1597,7 +1600,8 @@
     </footer>
 </div>
 
-<script src="/static/soundManager.js?v=3"></script>
+<script src="/static/soundManager.js?v=5"></script>
+<script src="/static/translator.js?v=6"></script>
 <script>
     // 사진을 넣을 공간 정의
     let finalUploadBlob = null;
