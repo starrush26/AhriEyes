@@ -249,7 +249,7 @@
             if (el.textContent !== targetName) el.textContent = targetName;
         });
 
-        // 4. 영문 표기일 때 중복 괄호 숨김
+        // 4. 영문 표기일 때 중복 괄호 / 번역 숨김
         document.querySelectorAll('.dev-en-paren').forEach(el => {
             el.style.display = (targetName === 'Gi Hyeon Lee') ? 'none' : 'inline';
         });

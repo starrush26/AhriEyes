@@ -8,6 +8,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
     <style>
+        /* 영어 모드일 때 중복 영문 괄호 즉시 숨김 */
+        html[lang="en"] .en-dup-paren,
+        html[lang^="en-"] .en-dup-paren {
+            display: none !important;
+        }
         :root {
             --bg-base: #0a0d14;
             --panel-bg: rgba(16, 22, 34, 0.88);
@@ -141,6 +146,8 @@
             font-weight: 600;
             color: #94a3b8;
             margin-right: 4px;
+            white-space: nowrap; /*줄 바꿈 방지*/
+            flex-shrink: 0; /*모바일에서도 너비 유지*/
         }
 
         .credit-item {
@@ -198,7 +205,7 @@
         }
 
         .credit-link:hover {
-            color: #e03188;              /* 마우스 올리면 아이콘과 글자 모두 핑크색으로 하이라이트 */
+            color: #e03188; /* 마우스 올리면 아이콘과 글자 모두 핑크색으로 하이라이트 */
         }
 
         .credit-icon {
@@ -1383,7 +1390,7 @@
         <!-- 3. 종합 결과 모델 계기판 클러스터 -->
         <div class="submodels-grid">
             <div class="submodel-card">
-                <div class="submodel-name">EfficientNet</div>
+                <div class="submodel-name notranslate">EfficientNet</div>
                 <div class="mini-tachometer-wrap">
                     <svg class="tachometer-svg" viewBox="0 0 150 85">
                         <!-- 각 단계별 색 정의-->>
@@ -1403,7 +1410,7 @@
             </div>
 
             <div class="submodel-card">
-                <div class="submodel-name">ConvNeXt</div>
+                <div class="submodel-name notranslate">ConvNeXt</div>
                 <div class="mini-tachometer-wrap">
                     <svg class="tachometer-svg" viewBox="0 0 150 85">
                         <path class="gauge-arc arc-safe" id="conv_arc1" d="M 27 68 A 48 48 0 0 1 36.1 39.8" />
@@ -1421,7 +1428,7 @@
             </div>
 
             <div class="submodel-card">
-                <div class="submodel-name">ViT-Base</div>
+                <div class="submodel-name notranslate">ViT</div>
                 <div class="mini-tachometer-wrap">
                     <svg class="tachometer-svg" viewBox="0 0 150 85">
                         <path class="gauge-arc arc-safe" id="vit_arc1" d="M 27 68 A 48 48 0 0 1 36.1 39.8" />
@@ -1442,11 +1449,11 @@
         <!-- XAI 안면 포렌식 비교 뷰어 (Side-by-Side) -->
         <div id="forensic-compare-container" class="forensic-compare-container" style="display: none;">
             <div class="forensic-view-box">
-            <div class="view-label">INPUT FACE (224×224)</div>
+            <div class="view-label notranslate">INPUT FACE (224×224)</div>
             <img id="forensic-orig-img" class="forensic-img" alt="Input Face" />
             </div>
             <div class="forensic-view-box">
-            <div class="view-label highlight">XAI ARTIFACT HEATMAP</div>
+            <div class="view-label highlight notranslate">XAI ARTIFACT HEATMAP</div>
             <img id="forensic-heat-img" class="forensic-img" alt="Artifact Heatmap" />
             </div>
         </div>
@@ -1455,8 +1462,9 @@
             <div class="xai-legend-bar"></div>
             <div class="xai-legend-labels">
                     <!-- 컬러 범례표 설명 문구 -->
-                    <span class="label-safe">&lt; 정상 영역 (NATURAL)</span>
-                    <span class="label-danger">변조된 영역 (TAMPERED) &gt;</span>
+                    <!-- en-dup-paren notranslate: 영어 모드에서 중복 번역 표시 하지 않음-->
+                    <span class="label-safe">&lt; 정상 영역 <span class="en-dup-paren notranslate">(NATURAL)</span></span>
+                    <span class="label-danger">변조된 영역 <span class="en-dup-paren notranslate">(TAMPERED)</span> &gt;</span>
             </div>
         </div>
 
@@ -1473,16 +1481,16 @@
     </div>
     <footer class="dev-credits">
         <div class="credit-item">
-            <span class="credit-role">Developer</span>
-            <a href="https://github.com/starrush26" target="_blank" rel="noopener noreferrer" class="credit-link">
+            <span class="credit-role notranslate">Developer</span>
+            <a href="https://github.com/starrush26" title="GitHub Profile" target="_blank" rel="noopener noreferrer" class="credit-link">
                 <svg class="credit-icon" viewBox="0 0 24 24" fill="currentColor">
                     <!-- 깃허브 로고 -->
                     <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
                 </svg>
-                [KOR] <span class="sync-dev-name notranslate">이기현</span> <span class="dev-en-paren notranslate">(Gi Hyeon Lee)</span>
+                    <span class="notranslate">[KOR]</span> <span class="sync-dev-name notranslate">이기현</span> <span class="dev-en-paren notranslate">(Gi Hyeon Lee)</span>
             </a>
-            <a href="https://www.kaggle.com/amongasu" target="_blank" rel="noopener noreferrer" class="credit-link">
-                <svg class="credit-icon" viewBox="0 0 24 24" fill="currentColor">
+            <a href="https://www.kaggle.com/amongasu" title="Kaggle Profile" target="_blank" rel="noopener noreferrer" class="credit-link">
+                <svg class="credit-icon" viewBox="0 0 24 24" style="fill: #20BEFF;">
                     <!-- 카글 로고 -->
                     <path d="M18.825 23.859c-.022.09-.117.141-.281.141h-3.139c-.187 0-.351-.082-.492-.248l-5.178-6.589-1.448 1.374v5.18c0 .188-.094.282-.281.282H5.167c-.188 0-.281-.094-.281-.282V.282c0-.188.093-.282.281-.282h2.839c.187 0 .281.094.281.282v14.154l6.198-6.398c.141-.164.305-.246.492-.246h3.292c.164 0 .258.059.281.176.023.094-.012.188-.105.282l-6.855 6.941 7.23 8.39c.07.094.093.188.07.282z"/>
                 </svg>
@@ -1490,15 +1498,15 @@
         </div>
         <span class="credit-divider">|</span>
         <div class="credit-item">
-            <span class="credit-role">Special Thanks</span>
-            <a href="https://www.kaggle.com/datasets/manjilkarki/deepfake-and-real-images" target="_blank" rel="noopener noreferrer" class="credit-link">
-                <svg class="credit-icon" viewBox="0 0 24 24" fill="currentColor">
+            <span class="credit-role notranslate">Special Thanks</span>
+            <a href="https://www.kaggle.com/datasets/manjilkarki/deepfake-and-real-images" title="Kaggle Dataset" target="_blank" rel="noopener noreferrer" class="credit-link">
+                <svg class="credit-icon" viewBox="0 0 24 24" style="fill: #20BEFF;">
                     <!-- 카글 로고 -->
                     <path d="M18.825 23.859c-.022.09-.117.141-.281.141h-3.139c-.187 0-.351-.082-.492-.248l-5.178-6.589-1.448 1.374v5.18c0 .188-.094.282-.281.282H5.167c-.188 0-.281-.094-.281-.282V.282c0-.188.093-.282.281-.282h2.839c.187 0 .281.094.281.282v14.154l6.198-6.398c.141-.164.305-.246.492-.246h3.292c.164 0 .258.059.281.176.023.094-.012.188-.105.282l-6.855 6.941 7.23 8.39c.07.094.093.188.07.282z"/>
                 </svg>
                 <span>[NPL] Manjil Karki (Kaggle Dataset Creator)</span>
             </a>
-            <a href="https://github.com/Manjil-Karki" target="_blank" rel="noopener noreferrer" class="credit-link">
+            <a href="https://github.com/Manjil-Karki" title="GitHub Profile" target="_blank" rel="noopener noreferrer" class="credit-link">
                 <svg class="credit-icon" viewBox="0 0 24 24" fill="currentColor">
                     <!-- 깃허브 로고 -->
                     <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
@@ -1659,13 +1667,17 @@
         ];
         targetIds.forEach(id => {
             const el = document.getElementById(id);
-            if (el) el.innerText = '??.? %';
+            if (el) {
+                el.classList.add('notranslate'); // 번역 방지 클래스 추가
+                el.innerText = '??.? %';
+            }
         });
 
         if (resultPanel) {
             resultPanel.querySelectorAll('span, div, p, text, h1, h2, h3, h4').forEach(el => {
                 const txt = el.innerText?.trim() || el.textContent?.trim();
                 if (txt === '00.0%' || txt === '0.0%' || txt === '0%') {
+                    el.classList.add('notranslate'); // 번역 방지 클래스 추가
                     el.innerText = '??.? %';
                     el.textContent = '??.? %';
                 }
@@ -1675,7 +1687,7 @@
         // 3. 위험도 뱃지 변경
         const badge = document.getElementById('stageBadge');
         if (badge) {
-            badge.innerText = 'STAGE ? (미검출 / UNDETECTED)';
+            badge.innerHTML = '<span class="notranslate">STAGE ? </span> (미검출<span class="en-dup-paren notranslate"> / UNDETECTED</span>)';
             badge.style.background = 'rgba(255, 107, 107, 0.15)';
             badge.style.color = '#ff6b6b';
             badge.style.border = '1px solid #ff6b6b';
@@ -1708,7 +1720,10 @@
 
             // 중앙 디지털 수치 '??.? %'
             const riskEl = document.getElementById('riskPercent');
-            if (riskEl) riskEl.innerText = '??.? %';
+            if (riskEl) {
+                riskEl.classList.add('notranslate'); // 번역 방지 클래스 추가
+                riskEl.innerText = '??.? %';
+            }
         };
 
         forceParkNeedles();
@@ -2107,32 +2122,32 @@
             let stageText = '';
 
             if (ensemblePercent < 20) {
-                stageText = 'STAGE 1 (매우 안전 / SAFE)';
-                badge.style.background = 'rgba(0, 230, 118, 0.15)';
-                badge.style.color = 'var(--stage-safe, #00e676)';
-                badge.style.border = '1px solid var(--stage-safe, #00e676)';
-            } else if (ensemblePercent < 40) {
-                stageText = 'STAGE 2 (안전 / OK)';
-                badge.style.background = 'rgba(118, 255, 3, 0.15)';
-                badge.style.color = 'var(--stage-low, #76ff03)';
-                badge.style.border = '1px solid var(--stage-low, #76ff03)';
-            } else if (ensemblePercent < 60) {
-                stageText = 'STAGE 3 (주의 / CAUTION)';
-                badge.style.background = 'rgba(255, 234, 0, 0.15)';
-                badge.style.color = 'var(--stage-caution, #ffea00)';
-                badge.style.border = '1px solid var(--stage-caution, #ffea00)';
-            } else if (ensemblePercent < 80) {
-                stageText = 'STAGE 4 (위험 / DANGER)';
-                badge.style.background = 'rgba(255, 145, 0, 0.15)';
-                badge.style.color = 'var(--stage-warning, #ff9100)';
-                badge.style.border = '1px solid var(--stage-warning, #ff9100)';
-            } else {
-                stageText = 'STAGE 5 (매우위험 / CRITICAL)';
-                badge.style.background = 'rgba(255, 23, 68, 0.15)';
-                badge.style.color = 'var(--stage-danger, #ff1744)';
-                badge.style.border = '1px solid var(--stage-danger, #ff1744)';
-            }
-            badge.innerText = stageText;
+            stageText = '<span class="notranslate">STAGE 1 </span> (<span>매우 안전</span><span class="en-dup-paren notranslate"> / SAFE</span>)';
+            badge.style.background = 'rgba(0, 230, 118, 0.15)';
+            badge.style.color = 'var(--stage-safe, #00e676)';
+            badge.style.border = '1px solid var(--stage-safe, #00e676)';
+        } else if (ensemblePercent < 40) {
+            stageText = '<span class="notranslate">STAGE 2 </span> (<span>안전</span><span class="en-dup-paren notranslate"> / OK</span>)';
+            badge.style.background = 'rgba(118, 255, 3, 0.15)';
+            badge.style.color = 'var(--stage-low, #76ff03)';
+            badge.style.border = '1px solid var(--stage-low, #76ff03)';
+        } else if (ensemblePercent < 60) {
+            stageText = '<span class="notranslate">STAGE 3 </span> (<span>주의</span><span class="en-dup-paren notranslate"> / CAUTION</span>)';
+            badge.style.background = 'rgba(255, 234, 0, 0.15)';
+            badge.style.color = 'var(--stage-caution, #ffea00)';
+            badge.style.border = '1px solid var(--stage-caution, #ffea00)';
+        } else if (ensemblePercent < 80) {
+            stageText = '<span class="notranslate">STAGE 4 </span> (<span>위험</span><span class="en-dup-paren notranslate"> / DANGER</span>)';
+            badge.style.background = 'rgba(255, 145, 0, 0.15)';
+            badge.style.color = 'var(--stage-warning, #ff9100)';
+            badge.style.border = '1px solid var(--stage-warning, #ff9100)';
+        } else {
+            stageText = '<span class="notranslate">STAGE 5 </span> (<span>매우위험</span><span class="en-dup-paren notranslate"> / CRITICAL</span>)';
+            badge.style.background = 'rgba(255, 23, 68, 0.15)';
+            badge.style.color = 'var(--stage-danger, #ff1744)';
+            badge.style.border = '1px solid var(--stage-danger, #ff1744)';
+        }
+        badge.innerHTML = stageText;
             
         }
         // 하단 XAI 컬러 범례표 표시 (422 예외 상태 결과 다음 정상 판독 시에도 복귀)
