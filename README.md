@@ -2,7 +2,7 @@
 ### https://huggingface.co/kihyeonlee/ahrieyes-models 에 있습니다 ###
 
 ### 에어갭 CD 버전인 ahrieyes live_v2.os를 다운로드 받으려면 ###
-### [[https://github.com/starrush26/AhriEyes/releases/tag/v2.3.1-live-cd](https://github.com/starrush26/AhriEyes/releases#release-v2.3.1-live_CD_v3_bug_fixed)](https://github.com/starrush26/AhriEyes/releases#release-v2.3.1-live_CD_v3_bug_fixed) 를 방문해주세요. ###
+### (https://github.com/starrush26/AhriEyes/releases#release-v2.3.1-live_CD_v3_bug_fixed)를 방문해주세요. ###
 ### 주의 : 부팅 시에는 인터넷 연결이 완전히 끊어져 있어야 내부 IP주소 할당이 꼬이지 않습니다 ###
 > **Note (Offline Live CD):** Download `ahrieyes_live_v2.iso` from the release link above.
 > **Disconnect from the internet before booting to prevent local DHCP/IP routing conflicts** (`Ahrieyes-Secure-AP` → `http://192.168.4.1`).
